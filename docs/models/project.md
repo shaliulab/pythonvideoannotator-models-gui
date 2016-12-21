@@ -44,14 +44,13 @@ Returns the objects of the video.
 ## **Functions**
 ***************************
 
-### create_tree_nodes()
-
 ### draw(frame, frame_index)
+
+Function called to draw information on the main window player.
 
 ### player_on_click(event, x, y)
 
-
-
+Function called by the main window when the mouse click in the image of the video player.
 
 ## **Reemplemented functions**
 ***************************
@@ -69,10 +68,6 @@ If a new video is added trigger the function **video_removed_evt(video)** of the
 ### create_video()
 
 Factory for the video gui model.
-
-### draw(frame, frame_index)
-
-Function called to draw information on the main window player.
 
 ### load(data, project_path=None)
 
