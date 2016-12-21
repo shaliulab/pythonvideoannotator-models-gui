@@ -133,8 +133,8 @@ class ProjectGUI(Project, BaseWidget):
 
 	def __add__(self, obj):
 		super(ProjectGUI, self).__add__(obj)
-		if isinstance(obj, Video) and hasattr(self.mainwindow, 'video_added_event'): 
-			self.mainwindow.video_added_event(obj)
+		if isinstance(obj, Video) and hasattr(self.mainwindow, 'video_added_evt'): 
+			self.mainwindow.video_added_evt(obj)
 		return self
 
 	def __sub__(self, obj):
