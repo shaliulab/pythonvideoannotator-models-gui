@@ -2,7 +2,7 @@
 
 This library is part of [Python Video Annotator](http://pythonvideoannotator.readthedocs.io) application.
 
-It implements the GUI for the [Python Video Annotator Models](http://pythonvideoannotator.readthedocs.io) library.
+This library implements the GUI for the [Python Video Annotator Models](http://pythonvideoannotator.readthedocs.io) library.
 
 ## What are the models?
 
