@@ -55,13 +55,7 @@ class PathsAndIntervalsSelectorDialog(BaseWidget):
 	### FUNCTIONS #######################################################
 	#####################################################################
 
-	def refresh_videos_list(self):  self._panel.value.refresh_videos_list()
-	def refresh_objects_list(self): self._panel.value.refresh_objects_list()
-	def refresh_paths_list(self):	self._panel.value.refresh_paths_list()
-	def update_videos(self): 		self._panel.value.update_videos()
-		
-	def update_objects(self):		self._panel.value.update_objects()
-	def update_paths(self):			self._panel.value.update_paths()
+	def refresh(self):  self._panel.value.refresh()
 
 	#####################################################################
 	### PROPERTIES ######################################################

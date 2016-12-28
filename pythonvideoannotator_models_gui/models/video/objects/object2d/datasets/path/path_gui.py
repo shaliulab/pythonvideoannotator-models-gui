@@ -22,7 +22,7 @@ class PathGUI(Path, BaseWidget):
 		
 
 		self.__create_tree_nodes()
-		self._name.changed_event 				 = self.__name_changed_evt
+		self._name.changed_event 				 = self.__name_changed_event
 
 
 
@@ -33,6 +33,7 @@ class PathGUI(Path, BaseWidget):
 		self._interpolation_title = ControlLabel('Interpolation')
 		self._interpolation_mode  = ControlCombo('Mode')
 		self._interpolate_btn 	  = ControlButton('Apply')
+		self._remove_btn 	  	  = ControlButton('Remove')
 
 		self._formset = [ 
 			'_name',
@@ -40,6 +41,7 @@ class PathGUI(Path, BaseWidget):
 			'_del_path_btn',
 			'_interpolation_title',
 			('_interpolation_mode','_interpolate_btn'),
+			'_remove_btn',
 			' '
 		]
 
@@ -60,13 +62,15 @@ class PathGUI(Path, BaseWidget):
 		self._interpolate_btn.icon = conf.ANNOTATOR_ICON_INTERPOLATE
 		self._mark_pto_btn.icon = conf.ANNOTATOR_ICON_MARKPLACE
 		self._sel_pto_btn.icon = conf.ANNOTATOR_ICON_SELECTPOINT
+		self._remove_btn.icon = conf.ANNOTATOR_ICON_REMOVE
 
 		#### set events #################################################
-		self._del_path_btn.value 		 = self.__del_path_btn_evt
-		self._interpolation_mode.changed_event = self.__interpolation_mode_changed_evt
-		self._interpolate_btn.value 	 = self.__interpolate_btn_evt
-		self._name.changed_event 				 = self.__name_changed_evt
-		self._sel_pto_btn.value			 = self.__sel_pto_btn_evt
+		self._del_path_btn.value 		 = self.__del_path_btn_event
+		self._interpolation_mode.changed_event = self.__interpolation_mode_changed_event
+		self._interpolate_btn.value 	 = self.__interpolate_btn_event
+		self._name.changed_event 				 = self.__name_changed_event
+		self._sel_pto_btn.value			 = self.__sel_pto_btn_event
+		self._remove_btn.value			 = self.__remove_path_dataset
 		
 
 	######################################################################
@@ -88,24 +92,24 @@ class PathGUI(Path, BaseWidget):
 		self.treenode_pos = self.tree.create_child('position', icon=conf.ANNOTATOR_ICON_POSITION, parent=self.treenode )
 		x_treenode = self.tree.create_child('x', icon=conf.ANNOTATOR_ICON_X, parent=self.treenode_pos )
 		y_treenode = self.tree.create_child('y', icon=conf.ANNOTATOR_ICON_Y, parent=self.treenode_pos )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_pos_x_to_timeline_evt, item=x_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_pos_y_to_timeline_evt, item=y_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_pos_x_to_timeline_event, item=x_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_pos_y_to_timeline_event, item=y_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
 		
 		self.treenode_vel = self.tree.create_child('velocity', icon=conf.ANNOTATOR_ICON_VELOCITY, parent=self.treenode )
 		vx_treenode = self.tree.create_child('x', icon=conf.ANNOTATOR_ICON_X, parent=self.treenode_vel )
 		vy_treenode = self.tree.create_child('y', icon=conf.ANNOTATOR_ICON_Y, parent=self.treenode_vel )
-		absv_treenode = self.tree.create_child('absolute', icon=conf.ANNOTATOR_ICON_Y, parent=self.treenode_vel )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_vel_x_to_timeline_evt, item=vx_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_vel_y_to_timeline_evt, item=vy_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_absvel_to_timeline_evt, item=absv_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		absv_treenode = self.tree.create_child('absolute', icon=conf.ANNOTATOR_ICON_INFO, parent=self.treenode_vel )
+		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_vel_x_to_timeline_event, item=vx_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_vel_y_to_timeline_event, item=vy_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_absvel_to_timeline_event, item=absv_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
 		
 		self.treenode_acc = self.tree.create_child('acceleration', icon=conf.ANNOTATOR_ICON_ACCELERATION, parent=self.treenode )
 		ax_treenode = self.tree.create_child('x', icon=conf.ANNOTATOR_ICON_X, parent=self.treenode_acc )
 		ay_treenode = self.tree.create_child('y', icon=conf.ANNOTATOR_ICON_Y, parent=self.treenode_acc )
-		absa_treenode = self.tree.create_child('absolute', icon=conf.ANNOTATOR_ICON_Y, parent=self.treenode_acc )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_acc_x_to_timeline_evt, item=ax_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_acc_y_to_timeline_evt, item=ay_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_absacc_to_timeline_evt, item=absa_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		absa_treenode = self.tree.create_child('absolute', icon=conf.ANNOTATOR_ICON_INFO, parent=self.treenode_acc )
+		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_acc_x_to_timeline_event, item=ax_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_acc_y_to_timeline_event, item=ay_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
+		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_absacc_to_timeline_event, item=absa_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
 		
 
 		y_treenode.win = x_treenode.win = self.treenode_pos.win = \
@@ -125,7 +129,7 @@ class PathGUI(Path, BaseWidget):
 	### GUI EVENTS #######################################################
 	######################################################################
 
-	def __sel_pto_btn_evt(self):
+	def __sel_pto_btn_event(self):
 		if self.mainwindow._player.video_index<0:return 
 		self._sel_pts.append( self.mainwindow._player.video_index)
 		#store a temporary path for interpolation visualization
@@ -147,38 +151,35 @@ class PathGUI(Path, BaseWidget):
 			self._tmp_path = []
 		self.mainwindow._player.refresh()
 
-	def __name_changed_evt(self):
+	def __name_changed_event(self):
 		self._name_changed_activated = True
 		self.name = self._name.value
 		del self._name_changed_activated
 
 	def __remove_path_dataset(self):
-		item = self.tree.selectedItem
-		if item is not None: 
-			self.mainwindow.remove_dataset_evt(item.win)
-			self.parent_treenode.removeChild(item)
+		item = self.tree.selected_item
+		if item is not None: self.object2d -= item.win
 
 
-
-	def __send_pos_x_to_timeline_evt(self):
+	def __send_pos_x_to_timeline_event(self):
 		data = [(i,self.get_position(i)[0]) for i in range(len(self)) if self.get_position(i) is not None]
 		self.mainwindow.add_graph('{0} x position'.format(self.name), data)
 
-	def __send_pos_y_to_timeline_evt(self):
+	def __send_pos_y_to_timeline_event(self):
 		data = [(i,self.get_position(i)[1]) for i in range(len(self)) if self.get_position(i) is not None]
 		self.mainwindow.add_graph('{0} y position'.format(self.name), data)
 
 	####################################################################
 
-	def __send_vel_x_to_timeline_evt(self):
+	def __send_vel_x_to_timeline_event(self):
 		data = [(i,self.get_velocity(i)[0]) for i in range(len(self)) if self.get_velocity(i) is not None]
 		self.mainwindow.add_graph('{0} x position'.format(self.name), data)
 
-	def __send_vel_y_to_timeline_evt(self):
+	def __send_vel_y_to_timeline_event(self):
 		data = [(i,self.get_velocity(i)[1]) for i in range(len(self)) if self.get_velocity(i) is not None]
 		self.mainwindow.add_graph('{0} y position'.format(self.name), data)
 
-	def __send_absvel_to_timeline_evt(self):
+	def __send_absvel_to_timeline_event(self):
 		data = []
 		for i in range(len(self)):
 			vel = self.get_velocity(i)
@@ -189,15 +190,15 @@ class PathGUI(Path, BaseWidget):
 
 	####################################################################
 
-	def __send_acc_x_to_timeline_evt(self):
+	def __send_acc_x_to_timeline_event(self):
 		data = [(i,self.get_acceleration(i)[0]) for i in range(len(self)) if self.get_acceleration(i) is not None]
 		self.mainwindow.add_graph('{0} x position'.format(self.name), data)
 
-	def __send_acc_y_to_timeline_evt(self):
+	def __send_acc_y_to_timeline_event(self):
 		data = [(i,self.get_acceleration(i)[1]) for i in range(len(self)) if self.get_acceleration(i) is not None]
 		self.mainwindow.add_graph('{0} y position'.format(self.name), data)
 
-	def __send_absacc_to_timeline_evt(self):
+	def __send_absacc_to_timeline_event(self):
 		data = []
 		for i in range(len(self)):
 			vel = self.get_acceleration(i)
@@ -208,7 +209,7 @@ class PathGUI(Path, BaseWidget):
 
 	####################################################################
 
-	def __interpolate_btn_evt(self): 
+	def __interpolate_btn_event(self): 
 		#store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2:
 			mode = None if self._interpolation_mode.value=='Auto' else self._interpolation_mode.value		 #store a temporary path for interpolation visualization
@@ -217,14 +218,14 @@ class PathGUI(Path, BaseWidget):
 		else:
 			QtGui.QMessageBox.about(self, "Error", "You need to select 2 frames.")
 
-	def __interpolation_mode_changed_evt(self): 
+	def __interpolation_mode_changed_event(self): 
 		#store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2:
 
 			self.calculate_tmp_interpolation()
 			self.mainwindow._player.refresh()
 
-	def __del_path_btn_evt(self): #store a temporary path for interpolation visualization
+	def __del_path_btn_event(self): #store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2:
 			reply = QtGui.QMessageBox.question(self, 'Confirmation',
 											   "Are you sure you want to delete this path?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
@@ -320,5 +321,4 @@ class PathGUI(Path, BaseWidget):
 		if not hasattr(self, '_name_changed_activated'): self._name.value = value
 		if hasattr(self, 'treenode'): self.treenode.setText(0,value)
 		
-		for dialog in PathsSelectorDialog.instantiated_dialogs:
-			dialog.refresh_paths_list()
+		for dialog in PathsSelectorDialog.instantiated_dialogs: dialog.refresh()

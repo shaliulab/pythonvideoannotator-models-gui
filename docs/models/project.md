@@ -58,12 +58,12 @@ Function called by the main window when the mouse click in the image of the vide
 ### \_\_add\_\_(obj)
 
 Calls super.
-If a new video is added trigger the function **video_added_evt(video)** of the main window.
+If a new video is added trigger the function **added_video_event(video)** of the main window.
 
 ### \_\_sub\_\_(obj)
 
 Calls super.
-If a new video is added trigger the function **video_removed_evt(video)** of the main window.
+If a new video is added trigger the function **removed_video_event(video)** of the main window.
 
 ### create_video()
 
@@ -82,14 +82,14 @@ Saves the timeline annotations.
 ## **Events**
 ***************************
 
-### tree_item_selection_changed_evt()
+### tree_item_selection_changed_event()
 
 Event called everytime a new selection is done in the project tree.
 
-### \_\_create_video_evt()
+### \_\_create_video_event()
 
 Event called when the button add video is pressed.
 
-### \_\_remove_video_evt()
+### \_\_remove_video_event()
 
 Event called when the button remove video is pressed.

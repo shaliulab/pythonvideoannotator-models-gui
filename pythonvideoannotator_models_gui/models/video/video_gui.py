@@ -17,7 +17,7 @@ class VideoGUI(Video, BaseWidget):
 
 		self._file 			= ControlFile('Video')
 		self._addobj 		= ControlButton('Add object')
-		self._removevideo  	= ControlButton('Remove video')
+		self._removevideo  	= ControlButton('Remove')
 
 
 		self.formset = [
@@ -27,12 +27,12 @@ class VideoGUI(Video, BaseWidget):
 		]
 
 		self._addobj.icon 	 = conf.ANNOTATOR_ICON_ADD
-
+		self._removevideo.icon = conf.ANNOTATOR_ICON_REMOVE
 
 		self._addobj.value   = self.create_object
-		self._file.changed_event = self.__filename_changed_evt
+		self._file.changed_event = self.__filename_changed_event
 
-		self._removevideo.value = self.__removevideo_changed_evt
+		self._removevideo.value = self.__remove_video_changed_event
 
 		self.create_tree_nodes()
 
@@ -44,26 +44,49 @@ class VideoGUI(Video, BaseWidget):
 	########### FUNCTIONS ###############################################################
 	#####################################################################################
 
+	def draw(self, frame, frame_index):
+		for obj in self.objects: obj.draw(frame, frame_index)
+
 
 	def create_tree_nodes(self):
 		self.treenode = self.tree.create_child('Video', icon=conf.ANNOTATOR_ICON_VIDEO)
 		self.treenode.win = self
 		self.tree.selected_item = self.treenode
 
+		self.tree.add_popup_menu_option(
+			label='Remove', 
+			function_action=self.__remove_video_changed_event, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_DELETE
+		)
+
 	def choose_file(self): self._file.click()
 		
 
 	def create_object(self): return Object2D(self)
 
+
+	def __add__(self, obj):
+		super(VideoGUI, self).__add__(obj)
+		if isinstance(obj, Object2D): self.mainwindow.added_object_event(obj)
+		return self
+
+	def __sub__(self, obj):
+		super(VideoGUI, self).__sub__(obj)
+		if isinstance(obj, Object2D): 
+			self.treenode.removeChild(obj.treenode)
+			self.mainwindow.removed_object_event(obj)
+		return self
+
 	#####################################################################################
 	########### EVENTS ##################################################################
 	#####################################################################################
 
-	def __removevideo_changed_evt(self): 
+	def __remove_video_changed_event(self): 
 		project = self.project
 		project -= self
+		if len(project.videos)==0: self.close()
 
-	def __filename_changed_evt(self):
+	def __filename_changed_event(self):
 		self._updating_filename = True
 		self.filepath = self._file.value
 		del self._updating_filename
@@ -88,8 +111,7 @@ class VideoGUI(Video, BaseWidget):
 		self.treenode.setText(0, self.name)
 		self.mainwindow.video = self.video_capture
 
-		for dialog in PathsSelectorDialog.instantiated_dialogs:
-			dialog.refresh_videos_list()
+		for dialog in PathsSelectorDialog.instantiated_dialogs: dialog.refresh()
 
 		if hasattr(self, '_updating_filename'): return
 		
