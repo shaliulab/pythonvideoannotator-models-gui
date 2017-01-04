@@ -8,6 +8,7 @@ from pyforms.Controls import ControlLabel
 from pyforms.Controls import ControlText
 from pythonvideoannotator_models.models.video.objects.object2d import Object2D
 from pythonvideoannotator_models_gui.dialogs.paths_selector import PathsSelectorDialog
+from pythonvideoannotator_models_gui.dialogs.images_selector import ImagesSelectorDialog
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path import Path
 
 class Object2dGUI(Object2D, BaseWidget):
@@ -104,7 +105,8 @@ class Object2dGUI(Object2D, BaseWidget):
 		if not hasattr(self, '_name_changed_activated'): self._name.value = value
 		if hasattr(self, 'treenode'): self.treenode.setText(0,value)
 
-		for dialog in PathsSelectorDialog.instantiated_dialogs: dialog.refresh()
+		for dialog in PathsSelectorDialog.instantiated_dialogs:  dialog.refresh()
+		for dialog in ImagesSelectorDialog.instantiated_dialogs: dialog.refresh()
 
 
 	@property 

@@ -13,6 +13,7 @@ from pyforms.dialogs  import CsvParserDialog
 
 from pythonvideoannotator_models.models import Project
 from pythonvideoannotator_models_gui.models.video import Video
+from pythonvideoannotator_models_gui.models.video.image import Image
 
 
 
@@ -41,6 +42,7 @@ class ProjectGUI(Project, BaseWidget):
 
 		self._addvideo.icon 	= conf.ANNOTATOR_ICON_ADD
 
+		self.tree.item_double_clicked_event    = self.tree_item_double_clicked_event
 		self.tree.item_selection_changed_event = self.tree_item_selection_changed_event
 		
 
@@ -53,6 +55,9 @@ class ProjectGUI(Project, BaseWidget):
 	######################################################################################
 	#### GUI EVENTS ######################################################################
 	######################################################################################
+
+	def tree_item_double_clicked_event(self, item):
+		if isinstance(item.win, Image): item.win.double_clicked_event()
 
 	def tree_item_selection_changed_event(self):
 		if self.tree.selected_item is not None and hasattr(self.tree.selected_item,'win'):

@@ -6,8 +6,10 @@ from pyforms.Controls import ControlButton
 from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlLabel
 from pyforms.Controls import ControlText
+from pythonvideoannotator.utils import tools
 from pythonvideoannotator_models_gui.dialogs.paths_selector import PathsSelectorDialog
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
+
 
 
 class PathGUI(Path, BaseWidget):
@@ -71,13 +73,50 @@ class PathGUI(Path, BaseWidget):
 		self._name.changed_event 				 = self.__name_changed_event
 		self._sel_pto_btn.value			 = self.__sel_pto_btn_event
 		self._remove_btn.value			 = self.__remove_path_dataset
+
+
+	######################################################################
+	### FUNCTIONS ########################################################
+	######################################################################
+
+	def get_position_x_value(self, index):
+		v = self.get_position(index)
+		return v[0] if v is not None else None
+
+	def get_position_y_value(self, index):
+		v = self.get_position(index)
+		return v[1] if v is not None else None
+
+
+	def get_velocity_x_value(self, index):
+		v = self.get_velocity(index)
+		return v[0] if v is not None else None
+
+	def get_velocity_y_value(self, index):
+		v = self.get_velocity(index)
+		return v[1] if v is not None else None
+
+	def get_velocity_absolute_value(self, index):
+		v = self.get_velocity(index)
+		return math.sqrt(v[1]**2+v[0]**2) if v is not None else None
+
+
+	def get_acceleration_x_value(self, index):
+		v = self.get_acceleration(index)
+		return v[0] if v is not None else None
+
+	def get_acceleration_y_value(self, index):
+		v = self.get_acceleration(index)
+		return v[1] if v is not None else None
+
+	def get_acceleration_absolute_value(self, index):
+		v = self.get_acceleration(index)
+		return math.sqrt(v[1]**2+v[0]**2) if v is not None else None
 		
 
 	######################################################################
 	### AUX FUNCTIONS ####################################################
 	######################################################################
-
-
 
 	def __create_tree_nodes(self):
 
@@ -87,47 +126,135 @@ class PathGUI(Path, BaseWidget):
 			function_action=self.__remove_path_dataset, 
 			item=self.treenode, icon=conf.ANNOTATOR_ICON_DELETE
 		)
-		
-
-		self.treenode_pos = self.tree.create_child('position', icon=conf.ANNOTATOR_ICON_POSITION, parent=self.treenode )
-		x_treenode = self.tree.create_child('x', icon=conf.ANNOTATOR_ICON_X, parent=self.treenode_pos )
-		y_treenode = self.tree.create_child('y', icon=conf.ANNOTATOR_ICON_Y, parent=self.treenode_pos )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_pos_x_to_timeline_event, item=x_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_pos_y_to_timeline_event, item=y_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		
-		self.treenode_vel = self.tree.create_child('velocity', icon=conf.ANNOTATOR_ICON_VELOCITY, parent=self.treenode )
-		vx_treenode = self.tree.create_child('x', icon=conf.ANNOTATOR_ICON_X, parent=self.treenode_vel )
-		vy_treenode = self.tree.create_child('y', icon=conf.ANNOTATOR_ICON_Y, parent=self.treenode_vel )
-		absv_treenode = self.tree.create_child('absolute', icon=conf.ANNOTATOR_ICON_INFO, parent=self.treenode_vel )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_vel_x_to_timeline_event, item=vx_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_vel_y_to_timeline_event, item=vy_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_absvel_to_timeline_event, item=absv_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		
-		self.treenode_acc = self.tree.create_child('acceleration', icon=conf.ANNOTATOR_ICON_ACCELERATION, parent=self.treenode )
-		ax_treenode = self.tree.create_child('x', icon=conf.ANNOTATOR_ICON_X, parent=self.treenode_acc )
-		ay_treenode = self.tree.create_child('y', icon=conf.ANNOTATOR_ICON_Y, parent=self.treenode_acc )
-		absa_treenode = self.tree.create_child('absolute', icon=conf.ANNOTATOR_ICON_INFO, parent=self.treenode_acc )
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_acc_x_to_timeline_event, item=ax_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_acc_y_to_timeline_event, item=ay_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		self.tree.add_popup_menu_option(label='View on the timeline', function_action=self.__send_absacc_to_timeline_event, item=absa_treenode, icon=conf.ANNOTATOR_ICON_TIMELINE)
-		
-
-		y_treenode.win = x_treenode.win = self.treenode_pos.win = \
-		absv_treenode.win = vy_treenode.win = vx_treenode.win = self.treenode_vel.win = \
-		absa_treenode.win = ay_treenode.win = ax_treenode.win = self.treenode_acc.win = \
 		self.treenode.win = self
 
-		y_treenode.object2d = x_treenode.object2d = self.treenode_pos.object2d = \
-		absv_treenode.object2d = vy_treenode.object2d = vx_treenode.object2d = self.treenode_vel.object2d = \
-		absa_treenode.object2d = ay_treenode.object2d = ax_treenode.object2d = self.treenode_acc.object2d = \
-		self.treenode.object2d = self.object2d
+		self.create_group_node('position', 		icon=conf.ANNOTATOR_ICON_POSITION)
+		self.create_data_node('position > x', 	icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('position > y', 	icon=conf.ANNOTATOR_ICON_Y)
+
+		self.create_group_node('velocity', 			icon=conf.ANNOTATOR_ICON_POSITION)
+		self.create_data_node('velocity > x', 		icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('velocity > y', 		icon=conf.ANNOTATOR_ICON_Y)
+		self.create_data_node('velocity > absolute', icon=conf.ANNOTATOR_ICON_INFO)
+
+		self.create_group_node('acceleration', 			icon=conf.ANNOTATOR_ICON_POSITION)
+		self.create_data_node('acceleration > x', 		icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('acceleration > y', 		icon=conf.ANNOTATOR_ICON_Y)
+		self.create_data_node('acceleration > absolute', icon=conf.ANNOTATOR_ICON_INFO)
+
+
+
+	def __normalize_name(self, name):
+		name = name.lower().replace(' ', '')
+		name = name.replace('>', '_')
+		return name
+
+	def __nodes_names(self, fullname):
+		fullname = fullname.lower().replace(' ', '')
+		values 	 = fullname.split('>')
+		if len(values)>1:
+			return '_'.join( values[:-1] ), values[-1]
+		else:
+			return None, values[0]
+
+	def __group_name(self, fullname):
+		group_name, data_name 	= self.__nodes_names(fullname)
+		return 'treenode' if group_name is None else 'treenode_{0}'.format(group_name)
+
+	def __child_title(self, fullname): return fullname.split('>')[-1]
+
+	def __child_name(self, fullname):
+		group_name, data_name 	= self.__nodes_names(fullname)
+		prefix = 'treenode' if group_name is None else 'treenode_{0}'.format(group_name)
+		return prefix + '_' + data_name
+
+	def __data_function(self, fullname):
+		group_name, data_name = self.__nodes_names(fullname)
+		data_func_name = 'get_{0}_{1}_value'.format(group_name, data_name)
+		return data_func_name
+	
+	def __group_treenode(self, fullname):
+		groupnode_name = self.__group_name(fullname)
+		if not hasattr(self, groupnode_name): 
+			raise Exception('The tree node [{0}] object is missing'.format(groupnode_name))
+		return getattr(self, groupnode_name)
+
+
+	def create_group_node(self, fullname, icon):
+		# create a group of data on the project tree
+		parent_node = self.__group_treenode(fullname)
+		child_title = self.__child_title(fullname)
+		child_node 	= self.tree.create_child(child_title, icon=icon, parent=parent_node)
+		child_node.win = self
+
+		setattr(self, self.__child_name(fullname), child_node )
+	
+		return child_node
+
+	def create_data_node(self, fullname, icon):
+		# create a data node on the project tree
+		parent_node = self.__group_treenode(fullname)
+		
+		# create the node
+		child_title = self.__child_title(fullname)
+		child_node 	= self.tree.create_child(child_title, icon=icon, parent=parent_node)
+		child_node.win = self
+		
+		data_func_name = self.__data_function(fullname)
+
+		# check if the function to get the data from the node exists
+		# if so add the option to the tree node
+		if hasattr(self, data_func_name ):
+			data_func = getattr(self, data_func_name )
+
+			action = tools.make_lambda_func(self.__send_2_timeline_event, graph_name=fullname, data_func=data_func )
+			self.tree.add_popup_menu_option(
+				label='View on the timeline', 
+				function_action=action ,
+				item=child_node,
+				icon=conf.ANNOTATOR_ICON_TIMELINE
+			)
+
+			action = tools.make_lambda_func(self.__export_2_csvfile_event, data_func=data_func )
+			self.tree.add_popup_menu_option(
+				label='Export to file', 
+				function_action=action ,
+				item=child_node,
+				icon=conf.PYFORMS_ICON_EVENTTIMELINE_EXPORT
+			)
+
+		return child_node
 		
 
+	
 	
 
 	######################################################################
 	### GUI EVENTS #######################################################
 	######################################################################
+
+	def __send_2_timeline_event(self, graph_name, data_func):
+		data = []
+		for i in range(len(self)):
+			v = data_func(i)
+			if v is not None: data.append( (i,v) )
+
+		self.mainwindow.add_graph(graph_name, data)
+
+	def __export_2_csvfile_event(self, data_func):
+		filename, ffilter = QtGui.QFileDialog.getSaveFileNameAndFilter(parent=self,
+													 caption="Export data",
+													 directory="untitled.csv",
+													 filter="CSV Files (*.csv)",
+													 options=QtGui.QFileDialog.DontUseNativeDialog)
+
+		if filename is not None:
+			filename = str(filename)
+			with open(filename, 'w') as outfile:
+				for i in range(len(self)):
+					v = data_func(i)
+					if v is not None:  outfile.write(';'.join(map(str, [i, v]) )+'\n' )
+
 
 	def __sel_pto_btn_event(self):
 		if self.mainwindow._player.video_index<0:return 
@@ -160,51 +287,6 @@ class PathGUI(Path, BaseWidget):
 		item = self.tree.selected_item
 		if item is not None: self.object2d -= item.win
 
-
-	def __send_pos_x_to_timeline_event(self):
-		data = [(i,self.get_position(i)[0]) for i in range(len(self)) if self.get_position(i) is not None]
-		self.mainwindow.add_graph('{0} x position'.format(self.name), data)
-
-	def __send_pos_y_to_timeline_event(self):
-		data = [(i,self.get_position(i)[1]) for i in range(len(self)) if self.get_position(i) is not None]
-		self.mainwindow.add_graph('{0} y position'.format(self.name), data)
-
-	####################################################################
-
-	def __send_vel_x_to_timeline_event(self):
-		data = [(i,self.get_velocity(i)[0]) for i in range(len(self)) if self.get_velocity(i) is not None]
-		self.mainwindow.add_graph('{0} x position'.format(self.name), data)
-
-	def __send_vel_y_to_timeline_event(self):
-		data = [(i,self.get_velocity(i)[1]) for i in range(len(self)) if self.get_velocity(i) is not None]
-		self.mainwindow.add_graph('{0} y position'.format(self.name), data)
-
-	def __send_absvel_to_timeline_event(self):
-		data = []
-		for i in range(len(self)):
-			vel = self.get_velocity(i)
-			if vel is not None:
-				data.append([i, math.sqrt(vel[1]**2+vel[0]**2)])
-		self.mainwindow.add_graph('{0} absolute velocity'.format(self.name), data)
-
-
-	####################################################################
-
-	def __send_acc_x_to_timeline_event(self):
-		data = [(i,self.get_acceleration(i)[0]) for i in range(len(self)) if self.get_acceleration(i) is not None]
-		self.mainwindow.add_graph('{0} x position'.format(self.name), data)
-
-	def __send_acc_y_to_timeline_event(self):
-		data = [(i,self.get_acceleration(i)[1]) for i in range(len(self)) if self.get_acceleration(i) is not None]
-		self.mainwindow.add_graph('{0} y position'.format(self.name), data)
-
-	def __send_absacc_to_timeline_event(self):
-		data = []
-		for i in range(len(self)):
-			vel = self.get_acceleration(i)
-			if vel is not None:
-				data.append([i,math.sqrt(vel[1]**2+vel[0]**2)])
-		self.mainwindow.add_graph('{0} absolute acceleration'.format(self.name), data)
 
 
 	####################################################################

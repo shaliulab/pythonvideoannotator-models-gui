@@ -5,8 +5,10 @@ from pysettings import conf
 from pyforms import BaseWidget
 from pyforms.Controls import ControlFile
 from pyforms.Controls import ControlButton
+from pythonvideoannotator_models_gui.models.video.image import Image
 from pythonvideoannotator_models_gui.models.video.objects.object2d import Object2D
 from pythonvideoannotator_models_gui.dialogs.paths_selector import PathsSelectorDialog
+from pythonvideoannotator_models_gui.dialogs.videos_selector import VideosSelectorDialog
 from pythonvideoannotator_models.models.video import Video
 
 class VideoGUI(Video, BaseWidget):
@@ -17,24 +19,31 @@ class VideoGUI(Video, BaseWidget):
 
 		self._file 			= ControlFile('Video')
 		self._addobj 		= ControlButton('Add object')
+		self._addimg 		= ControlButton('Add Image')
 		self._removevideo  	= ControlButton('Remove')
+
 
 
 		self.formset = [
 			'_file', 			
-			('_addobj', '_removevideo'),
+			('_addobj', '_addimg'),
+			'_removevideo',
 			' '
 		]
 
-		self._addobj.icon 	 = conf.ANNOTATOR_ICON_ADD
-		self._removevideo.icon = conf.ANNOTATOR_ICON_REMOVE
+		self._addobj.icon 	 	= conf.ANNOTATOR_ICON_ADD
+		self._addimg.icon 	 	= conf.ANNOTATOR_ICON_ADD
+		self._removevideo.icon 	= conf.ANNOTATOR_ICON_REMOVE
 
-		self._addobj.value   = self.create_object
+		self._addobj.value   	 = self.create_object
+		self._addimg.value   	 = self.create_image
 		self._file.changed_event = self.__filename_changed_event
 
-		self._removevideo.value = self.__remove_video_changed_event
+		self._removevideo.value  = self.__remove_video_changed_event
 
 		self.create_tree_nodes()
+
+		self.hide()
 
 
 	
@@ -63,11 +72,13 @@ class VideoGUI(Video, BaseWidget):
 		
 
 	def create_object(self): return Object2D(self)
+	def create_image(self): return Image(self)
 
 
 	def __add__(self, obj):
 		super(VideoGUI, self).__add__(obj)
 		if isinstance(obj, Object2D): self.mainwindow.added_object_event(obj)
+		if isinstance(obj, Image): self.mainwindow.added_object_event(obj)
 		return self
 
 	def __sub__(self, obj):
@@ -75,6 +86,11 @@ class VideoGUI(Video, BaseWidget):
 		if isinstance(obj, Object2D): 
 			self.treenode.removeChild(obj.treenode)
 			self.mainwindow.removed_object_event(obj)
+
+		if isinstance(obj, Image): 
+			self.treenode.removeChild(obj.treenode)
+			self.mainwindow.removed_image_event(obj)
+
 		return self
 
 	#####################################################################################
@@ -111,13 +127,18 @@ class VideoGUI(Video, BaseWidget):
 		self.treenode.setText(0, self.name)
 		self.mainwindow.video = self.video_capture
 
-		for dialog in PathsSelectorDialog.instantiated_dialogs: dialog.refresh()
+		for dialog in PathsSelectorDialog.instantiated_dialogs:  dialog.refresh()
+		for dialog in VideosSelectorDialog.instantiated_dialogs: dialog.refresh()
+		
 
 		if hasattr(self, '_updating_filename'): return
 		
 		self._file.value = value
 			
 
+	def show(self):
+		if hasattr(self, '_right_docker'): self._right_docker.value = self
+		super(VideoGUI, self).show()
 		
 			
 
