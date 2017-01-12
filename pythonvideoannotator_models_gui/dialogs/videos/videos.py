@@ -2,16 +2,12 @@ import pyforms
 from pyforms import BaseWidget
 from pyforms.Controls import ControlBoundingSlider
 from pyforms.Controls import ControlEmptyWidget
-from pythonvideoannotator_models_gui.dialogs.videos_selector import VideosSelectorDialog
+from pythonvideoannotator_models_gui.dialogs.videos.videos_selector import VideosSelectorDialog
 
-class VideosAndIntervalsSelectorDialog(BaseWidget):
-
-	instantiated_dialogs = []
+class VideosDialog(BaseWidget):
 
 	def __init__(self, parent_win=None):
 		BaseWidget.__init__(self, 'Videos and intervals selector', parent_win=parent_win)
-
-		self.instantiated_dialogs.append(self)
 
 		self._panel  	= ControlEmptyWidget(default=VideosSelectorDialog(parent_win=self))
 		self._interval 	= ControlBoundingSlider('Interval', horizontal=True)
@@ -31,13 +27,13 @@ class VideosAndIntervalsSelectorDialog(BaseWidget):
 	#####################################################################
 
 	def __update_intervals_event(self):
-		self._intervals[self.current_video] = self._interval.value
+		self._intervals[self.selected_video] = self._interval.value
 
 	def __video_selection_changed_event(self):
-		video = self.current_video
+		video = self.selected_video
 		
 		if video is not None and video.video_capture is not None:
-			self._interval.max 	 = self.current_video_capture.get(7)
+			self._interval.max 	 = video.video_capture.get(7)
 			if video not in self._intervals.keys(): 
 				self._intervals[video] = 0, self._interval.max
 			
@@ -56,19 +52,26 @@ class VideosAndIntervalsSelectorDialog(BaseWidget):
 	#####################################################################
 
 	def refresh(self):  self._panel.value.refresh()
+	def clear(self):  self._panel.value.clear()
+	def __add__(self, other): self._panel.value += other; return self
+	def __sub__(self, other): self._panel.value -= other; return self
 
 	#####################################################################
 	### PROPERTIES ######################################################
 	#####################################################################
 
 	@property
-	def current_video(self): 		return self._panel.value.current_video
+	def selected_video(self): 		return self._panel.value.selected_video
+	
 	@property
-	def current_video_capture(self):return self._panel.value.current_video_capture
+	def videos(self): return self._panel.value.videos
+
 	@property
-	def project(self): 				return self._panel.value.project
-	@project.setter
-	def project(self, value): 		self._panel.value.project = value
+	def interval_visible(self): return self._interval.visible
+	@interval_visible.setter
+	def interval_visible(self, value): self._interval.visible = value
+
+	
 
 	@property
 	def selected_data(self):
@@ -79,4 +82,4 @@ class VideosAndIntervalsSelectorDialog(BaseWidget):
 	
 
 
-if __name__ == "__main__":	 pyforms.startApp( PathsAndIntervalsSelectorDialog )
+if __name__ == "__main__":	 pyforms.startApp( VideosDialog )

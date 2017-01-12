@@ -1,0 +1,4 @@
+from pythonvideoannotator_models_gui.dialogs.datasets.datasets import DatasetsDialog
+from pythonvideoannotator_models_gui.dialogs.videos.videos import VideosDialog
+from pythonvideoannotator_models_gui.dialogs.images.images import ImagesDialog
+from pythonvideoannotator_models_gui.dialogs.dialog import Dialog

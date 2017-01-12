@@ -7,27 +7,26 @@ from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlLabel
 from pyforms.Controls import ControlText
 from pythonvideoannotator_models.models.video.image import Image
-from pythonvideoannotator_models_gui.dialogs.paths_selector import PathsSelectorDialog
+from pythonvideoannotator_models_gui.dialogs import DatasetsDialog
+from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path import Path
 
-class ImageGUI(Image, BaseWidget):
+class ImageGUI(IModelGUI, Image, BaseWidget):
 
 	def __init__(self, video):
+		IModelGUI.__init__(self)
+		Image.__init__(self, video)
 		BaseWidget.__init__(self, 'Image', parent_win=video)
 		
-		self._name 			= ControlText('Name' )
 		self._removeimg  	= ControlButton('Remove')
 
-		Image.__init__(self, video)
-
-
+		
 		self.formset = [
 			'_name', 			
 			'_removeimg',
 			' '
 		]
 
-		self._name.changed_event = self.__name_changed_event
 		self._removeimg.value = self.__remove_image_event
 
 		self.create_tree_nodes()
@@ -40,10 +39,7 @@ class ImageGUI(Image, BaseWidget):
 	def on_click(self, event, x, y):
 		pass
 
-	def __name_changed_event(self):
-		self._name_changed_activated = True
-		self.name = self._name.value
-		del self._name_changed_activated
+
 
 	def __remove_image_event(self):
 		self.video -= self
@@ -81,13 +77,6 @@ class ImageGUI(Image, BaseWidget):
 	@property
 	def tree(self): 		return self.video.tree
 	
-
-	@property
-	def name(self): return self._name.value
-	@name.setter
-	def name(self, value):
-		if not hasattr(self, '_name_changed_activated'): self._name.value = value
-		if hasattr(self, 'treenode'): self.treenode.setText(0,value)
 
 
 	@property 

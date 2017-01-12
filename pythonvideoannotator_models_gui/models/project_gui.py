@@ -10,24 +10,25 @@ from pyforms.Controls import ControlList
 from pyforms.Controls import ControlEmptyWidget
 from pyforms.dialogs  import CsvParserDialog
 
-
+from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models.models import Project
 from pythonvideoannotator_models_gui.models.video import Video
 from pythonvideoannotator_models_gui.models.video.image import Image
 
 
-
-
-
-class ProjectGUI(Project, BaseWidget):
+class ProjectGUI(IModelGUI, Project, BaseWidget):
 	"""Application form"""
 
+	_project = None
+
 	def __init__(self, parent=None):
-		self._parent = parent
+		IModelGUI.__init__(self)
 		Project.__init__(self)
 		BaseWidget.__init__(self, 'Project window', parent_win=parent)
 		
-
+		conf.PROJECT = self
+		self._parent = parent
+		
 		self._tree 			= ControlTree('')
 		self._addvideo 		= ControlButton('Add video')
 		self._removevideo 	= ControlButton('Remove video')
@@ -35,7 +36,7 @@ class ProjectGUI(Project, BaseWidget):
 			'_tree', 
 			'_addvideo',
 		]
-		
+	
 		## set controls ##########################################################
 		self._tree.show_header  = False
 		self._addvideo.value 	= self.__create_video_event
@@ -77,16 +78,9 @@ class ProjectGUI(Project, BaseWidget):
 	#### PUBLIC FUNCTIONS ################################################################
 	######################################################################################
 
-	def __add__(self, obj):
-		super(ProjectGUI, self).__add__(obj)
-		if isinstance(obj, Video) and hasattr(self.mainwindow, 'added_video_event'): 
-			self.mainwindow.added_video_event(obj)
-		return self
-
 	def __sub__(self, obj):
 		super(ProjectGUI, self).__sub__(obj)
 		if isinstance(obj, Video): self._tree -= obj.treenode
-		if hasattr(self.mainwindow, 'removed_video_event'): self.mainwindow.removed_video_event(obj)
 		return self
 		
 	def player_on_click(self, event, x, y):
@@ -123,3 +117,10 @@ class ProjectGUI(Project, BaseWidget):
 
 	@property
 	def objects(self):  	return [item.win for item in self._tree.value]
+
+
+	@property
+	def name(self): return self.directory
+	@name.setter
+	def name(self, value): pass
+		

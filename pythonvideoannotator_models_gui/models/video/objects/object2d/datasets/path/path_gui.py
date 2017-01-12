@@ -1,4 +1,4 @@
-import math
+import math, cv2
 from pysettings import conf
 from pyforms import BaseWidget
 from PyQt4 import QtCore, QtGui
@@ -7,26 +7,20 @@ from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlLabel
 from pyforms.Controls import ControlText
 from pythonvideoannotator.utils import tools
-from pythonvideoannotator_models_gui.dialogs.paths_selector import PathsSelectorDialog
+
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
+from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
 
 
-
-class PathGUI(Path, BaseWidget):
+class PathGUI(DatasetGUI, Path, BaseWidget):
 
 	def __init__(self, object2d=None):
-		BaseWidget.__init__(self, '2D Object', parent_win=object2d)
-		
-		self._name = ControlText('Name')
-		
+		DatasetGUI.__init__(self)
 		Path.__init__(self, object2d)
-
-		
+		BaseWidget.__init__(self, '2D Object', parent_win=object2d)
 
 		self.__create_tree_nodes()
-		self._name.changed_event 				 = self.__name_changed_event
-
-
+ 		
 
 		
 		self._mark_pto_btn 	  	  = ControlButton('Mark point', checkable=True)
@@ -70,7 +64,6 @@ class PathGUI(Path, BaseWidget):
 		self._del_path_btn.value 		 = self.__del_path_btn_event
 		self._interpolation_mode.changed_event = self.__interpolation_mode_changed_event
 		self._interpolate_btn.value 	 = self.__interpolate_btn_event
-		self._name.changed_event 				 = self.__name_changed_event
 		self._sel_pto_btn.value			 = self.__sel_pto_btn_event
 		self._remove_btn.value			 = self.__remove_path_dataset
 
@@ -78,6 +71,21 @@ class PathGUI(Path, BaseWidget):
 	######################################################################
 	### FUNCTIONS ########################################################
 	######################################################################
+
+	def get_velocity(self, index):
+		p1 = self.get_position(index)
+		p2 = self.get_position(index-1)
+		if p1 is None or p2 is None: return None
+		return p2[0]-p1[0], p2[1]-p1[1]
+		
+
+	def get_acceleration(self, index):
+		v1 = self.get_velocity(index)
+		v2 = self.get_velocity(index-1)
+		if v1 is None or v2 is None: return None
+		return v2[0]-v1[0], v2[1]-v1[1]
+
+
 
 	def get_position_x_value(self, index):
 		v = self.get_position(index)
@@ -132,98 +140,19 @@ class PathGUI(Path, BaseWidget):
 		self.create_data_node('position > x', 	icon=conf.ANNOTATOR_ICON_X)
 		self.create_data_node('position > y', 	icon=conf.ANNOTATOR_ICON_Y)
 
-		self.create_group_node('velocity', 			icon=conf.ANNOTATOR_ICON_POSITION)
+		self.create_group_node('velocity', 			icon=conf.ANNOTATOR_ICON_VELOCITY)
 		self.create_data_node('velocity > x', 		icon=conf.ANNOTATOR_ICON_X)
 		self.create_data_node('velocity > y', 		icon=conf.ANNOTATOR_ICON_Y)
 		self.create_data_node('velocity > absolute', icon=conf.ANNOTATOR_ICON_INFO)
 
-		self.create_group_node('acceleration', 			icon=conf.ANNOTATOR_ICON_POSITION)
+		self.create_group_node('acceleration', 			icon=conf.ANNOTATOR_ICON_ACCELERATION)
 		self.create_data_node('acceleration > x', 		icon=conf.ANNOTATOR_ICON_X)
 		self.create_data_node('acceleration > y', 		icon=conf.ANNOTATOR_ICON_Y)
 		self.create_data_node('acceleration > absolute', icon=conf.ANNOTATOR_ICON_INFO)
 
 
 
-	def __normalize_name(self, name):
-		name = name.lower().replace(' ', '')
-		name = name.replace('>', '_')
-		return name
-
-	def __nodes_names(self, fullname):
-		fullname = fullname.lower().replace(' ', '')
-		values 	 = fullname.split('>')
-		if len(values)>1:
-			return '_'.join( values[:-1] ), values[-1]
-		else:
-			return None, values[0]
-
-	def __group_name(self, fullname):
-		group_name, data_name 	= self.__nodes_names(fullname)
-		return 'treenode' if group_name is None else 'treenode_{0}'.format(group_name)
-
-	def __child_title(self, fullname): return fullname.split('>')[-1]
-
-	def __child_name(self, fullname):
-		group_name, data_name 	= self.__nodes_names(fullname)
-		prefix = 'treenode' if group_name is None else 'treenode_{0}'.format(group_name)
-		return prefix + '_' + data_name
-
-	def __data_function(self, fullname):
-		group_name, data_name = self.__nodes_names(fullname)
-		data_func_name = 'get_{0}_{1}_value'.format(group_name, data_name)
-		return data_func_name
 	
-	def __group_treenode(self, fullname):
-		groupnode_name = self.__group_name(fullname)
-		if not hasattr(self, groupnode_name): 
-			raise Exception('The tree node [{0}] object is missing'.format(groupnode_name))
-		return getattr(self, groupnode_name)
-
-
-	def create_group_node(self, fullname, icon):
-		# create a group of data on the project tree
-		parent_node = self.__group_treenode(fullname)
-		child_title = self.__child_title(fullname)
-		child_node 	= self.tree.create_child(child_title, icon=icon, parent=parent_node)
-		child_node.win = self
-
-		setattr(self, self.__child_name(fullname), child_node )
-	
-		return child_node
-
-	def create_data_node(self, fullname, icon):
-		# create a data node on the project tree
-		parent_node = self.__group_treenode(fullname)
-		
-		# create the node
-		child_title = self.__child_title(fullname)
-		child_node 	= self.tree.create_child(child_title, icon=icon, parent=parent_node)
-		child_node.win = self
-		
-		data_func_name = self.__data_function(fullname)
-
-		# check if the function to get the data from the node exists
-		# if so add the option to the tree node
-		if hasattr(self, data_func_name ):
-			data_func = getattr(self, data_func_name )
-
-			action = tools.make_lambda_func(self.__send_2_timeline_event, graph_name=fullname, data_func=data_func )
-			self.tree.add_popup_menu_option(
-				label='View on the timeline', 
-				function_action=action ,
-				item=child_node,
-				icon=conf.ANNOTATOR_ICON_TIMELINE
-			)
-
-			action = tools.make_lambda_func(self.__export_2_csvfile_event, data_func=data_func )
-			self.tree.add_popup_menu_option(
-				label='Export to file', 
-				function_action=action ,
-				item=child_node,
-				icon=conf.PYFORMS_ICON_EVENTTIMELINE_EXPORT
-			)
-
-		return child_node
 		
 
 	
@@ -233,27 +162,6 @@ class PathGUI(Path, BaseWidget):
 	### GUI EVENTS #######################################################
 	######################################################################
 
-	def __send_2_timeline_event(self, graph_name, data_func):
-		data = []
-		for i in range(len(self)):
-			v = data_func(i)
-			if v is not None: data.append( (i,v) )
-
-		self.mainwindow.add_graph(graph_name, data)
-
-	def __export_2_csvfile_event(self, data_func):
-		filename, ffilter = QtGui.QFileDialog.getSaveFileNameAndFilter(parent=self,
-													 caption="Export data",
-													 directory="untitled.csv",
-													 filter="CSV Files (*.csv)",
-													 options=QtGui.QFileDialog.DontUseNativeDialog)
-
-		if filename is not None:
-			filename = str(filename)
-			with open(filename, 'w') as outfile:
-				for i in range(len(self)):
-					v = data_func(i)
-					if v is not None:  outfile.write(';'.join(map(str, [i, v]) )+'\n' )
 
 
 	def __sel_pto_btn_event(self):
@@ -278,10 +186,6 @@ class PathGUI(Path, BaseWidget):
 			self._tmp_path = []
 		self.mainwindow._player.refresh()
 
-	def __name_changed_event(self):
-		self._name_changed_activated = True
-		self.name = self._name.value
-		del self._name_changed_activated
 
 	def __remove_path_dataset(self):
 		item = self.tree.selected_item
@@ -320,9 +224,6 @@ class PathGUI(Path, BaseWidget):
 			QtGui.QMessageBox.about(self, "Error", "You need to select 2 frames.")
 
 
-	def name_updated(self, newname): pass
-	
-	
 	######################################################################
 	### VIDEO EVENTS #####################################################
 	######################################################################
@@ -377,8 +278,13 @@ class PathGUI(Path, BaseWidget):
 			
 			self.mainwindow._player.refresh()
 
-
-
+	def draw(self, frame, frame_index):
+		pos = self.get_position(frame_index)
+		if pos is None: return
+		
+		cv2.circle(frame, pos, 8, (255,255,255), -1)
+		cv2.circle(frame, pos, 6, (100,0,100), 	 -1)
+		
 
 
 	######################################################################
@@ -396,11 +302,3 @@ class PathGUI(Path, BaseWidget):
 	def parent_treenode(self):  return self._object2d.treenode
 
 
-	@property
-	def name(self): return self._name.value
-	@name.setter
-	def name(self, value):
-		if not hasattr(self, '_name_changed_activated'): self._name.value = value
-		if hasattr(self, 'treenode'): self.treenode.setText(0,value)
-		
-		for dialog in PathsSelectorDialog.instantiated_dialogs: dialog.refresh()
