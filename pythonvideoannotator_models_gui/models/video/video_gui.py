@@ -29,7 +29,7 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		self.formset = [
 			'_name',
 			'_file', 			
-			('_addobj', '_addimg'),
+			#('_addobj', '_addimg'),
 			'_removevideo',
 			' '
 		]
@@ -49,9 +49,6 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 
 		self.create_tree_nodes()
 
-		# fix bug: video windows open ditached from the main window when a project is opened
-		if len(project.videos)>1: self.hide()
-
 
 	
 	
@@ -70,6 +67,17 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		self.tree.selected_item = self.treenode
 
 		self.tree.add_popup_menu_option(
+			label='Add an object', 
+			function_action=self.create_object, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_OBJECT
+		)
+		self.tree.add_popup_menu_option(
+			label='Add an image', 
+			function_action=self.create_image, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_IMAGE
+		)
+
+		self.tree.add_popup_menu_option(
 			label='Remove', 
 			function_action=self.__remove_video_changed_event, 
 			item=self.treenode, icon=conf.ANNOTATOR_ICON_DELETE
@@ -80,6 +88,7 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 
 	def create_object(self): return Object2D(self)
 	def create_image(self): return Image(self)
+
 
 
 	#####################################################################################
@@ -112,10 +121,6 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		Video.filepath.fset(self, value)		
 		self.mainwindow.video 	= self.video_capture
 		self._file.value 		= value
-		
-	def show(self):
-		if hasattr(self, '_right_docker'): self._right_docker.value = self
-		super(VideoGUI, self).show()
 		
 			
 	def on_click(self, event, x, y):

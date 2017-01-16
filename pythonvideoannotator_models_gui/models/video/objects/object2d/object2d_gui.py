@@ -28,8 +28,8 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 
 		self.formset = [
 			'_name', 			
-			('_addpath', '_addcontours'),
-			'_addvalues',
+			#('_addpath', '_addcontours'),
+			#'_addvalues',
 			'_removeobj',
 			' '
 		]
@@ -65,6 +65,22 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 	def create_tree_nodes(self):
 		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_OBJECT, parent=self.video.treenode)
 		self.treenode.win = self
+
+		self.tree.add_popup_menu_option(
+			label='Add a path', 
+			function_action=self.create_path, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_PATH
+		)
+		self.tree.add_popup_menu_option(
+			label='Add contours', 
+			function_action=self.create_contours, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_CONTOUR
+		)
+		self.tree.add_popup_menu_option(
+			label='Add a value', 
+			function_action=self.create_value, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_INFO
+		)
 
 		self.tree.add_popup_menu_option(
 			label='Remove', 

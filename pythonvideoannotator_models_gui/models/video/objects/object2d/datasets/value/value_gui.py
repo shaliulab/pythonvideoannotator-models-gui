@@ -50,7 +50,7 @@ class ValueGUI(DatasetGUI, Value, BaseWidget):
 
 
 	def create_tree_nodes(self):
-		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_CONTOUR, parent=self.parent_treenode )
+		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_INFO, parent=self.parent_treenode )
 		self.tree.add_popup_menu_option(
 			label='Remove', 
 			function_action=self.remove_dataset, 
