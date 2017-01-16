@@ -85,9 +85,11 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 	######################################################################
 
 	def on_click(self, event, x, y):
-		pass
+		for dataset in self.datasets: dataset.on_click(event, x, y)
 
-
+	def draw(self, frame, frame_index):
+		for dataset in self.datasets: dataset.draw(frame, frame_index)
+	
 
 	######################################################################
 	### PROPERTIES #######################################################

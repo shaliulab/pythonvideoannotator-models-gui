@@ -1,4 +1,4 @@
-import math, cv2
+import math, cv2, numpy as np
 from pysettings import conf
 from pyforms import BaseWidget
 from PyQt4 import QtCore, QtGui
@@ -20,7 +20,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		BaseWidget.__init__(self, '2D Object', parent_win=object2d)
 
 		self.__create_tree_nodes()
- 		
+		
 
 		
 		self._mark_pto_btn 	  	  = ControlButton('Mark point', checkable=True)
@@ -184,6 +184,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 			self._interpolation_title.hide()
 			self._del_path_btn.hide()
 			self._tmp_path = []
+
 		self.mainwindow._player.refresh()
 
 
@@ -229,10 +230,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 	######################################################################
 
 	def on_click(self, event, x, y):
-
 		if event.button() == 1:
 			frame_index = self.mainwindow._player.video_index
-
 
 			if self._mark_pto_btn.checked:
 				self.set_position(frame_index if frame_index>=0 else 0, x, y)
@@ -257,34 +256,72 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 					self._sel_pts =[]  # No object selected: remove previous selections #store a temporary path for interpolation visualization
 				self._sel_pts =sorted(self._sel_pts)
 
- 			#store a temporary path for interpolation visualization
+			#store a temporary path for interpolation visualization
 			if len(self._sel_pts) == 2: 
 				#########################################################
 				#In case 2 frames are selected, draw the temporary path##
 				#########################################################
-				self.calculate_tmp_interpolation()
-				self._interpolate_btn.show()
-				self._interpolation_mode.show()
-				self._interpolation_title.show()
-				self._del_path_btn.show()
+				#self.calculate_tmp_interpolation()
+				if self.visible:
+					self._interpolate_btn.show()
+					self._interpolation_mode.show()
+					self._interpolation_title.show()
+					self._del_path_btn.show()
+					self._sel_pto_btn.hide()
 				#########################################################
 			else:
-				self._interpolate_btn.hide()
-				self._interpolation_mode.hide()
-				self._interpolation_title.hide()
-				self._del_path_btn.hide()
+				if self.visible:
+					self._interpolate_btn.hide()
+					self._interpolation_mode.hide()
+					self._interpolation_title.hide()
+					self._del_path_btn.hide()
 				self._tmp_path = []
 				
 			
 			self.mainwindow._player.refresh()
 
-	def draw(self, frame, frame_index):
+	def draw_position(self, frame, frame_index):
 		pos = self.get_position(frame_index)
 		if pos is None: return
 		
-		cv2.circle(frame, pos, 8, (255,255,255), -1)
-		cv2.circle(frame, pos, 6, (100,0,100), 	 -1)
+		cv2.circle(frame, pos, 8, (255,255,255), -1, lineType=cv2.LINE_AA)
+		cv2.circle(frame, pos, 6, (100,0,100), 	 -1, lineType=cv2.LINE_AA)
+
+	def draw_circle(self, frame, frame_index):
+		position = self.get_position(frame_index)
+		if position != None:
+			cv2.circle(frame, position[:2], 20, (255, 255, 255), 4, lineType=cv2.LINE_AA)  # pylint: disable=no-member
+			cv2.circle(frame, position[:2], 20, (50, 50, 255), 1, lineType=cv2.LINE_AA)  # pylint: disable=no-member
+
+			cv2.putText(frame, str(frame_index), position[:2], cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 0), thickness=2, lineType=cv2.LINE_AA)  # pylint: disable=no-member
+			cv2.putText(frame, str(frame_index), position[:2], cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), thickness=1, lineType=cv2.LINE_AA)  # pylint: disable=no-member
+
+	def draw(self, frame, frame_index):
+
+		self.draw_position(frame, frame_index)
+
+		# Draw the selected blobs
+		for item in self._sel_pts: #store a temporary path for interpolation visualization
+			self.draw_circle(frame, item)
+
+		# Draw the selected path #store a temporary path for interpolation visualization
+		if 1 <= len(self._sel_pts) == 2: #store a temporary path for interpolation visualization
+			start = self._sel_pts[0] #store a temporary path for interpolation visualization
+			end = frame_index if len(self._sel_pts)==1 else self._sel_pts[1]
+
+			cnt = np.int32(self._points[start:end])
 		
+			cv2.polylines(frame, [cnt], False, (0,0,255), 1, lineType=cv2.LINE_AA)
+			
+		"""
+		# Draw a temporary path
+		for i in range(len(self._tmp_points) - 1):
+			p1 = self._tmp_points[i]
+			p2 = self._tmp_points[i + 1]
+			p1 = (int(p1[0]), int(p1[1]))
+			p2 = (int(p2[0]), int(p2[1]))
+			cv2.line(frame, p1, p2, (255, 0, 0), 1)
+		"""
 
 
 	######################################################################

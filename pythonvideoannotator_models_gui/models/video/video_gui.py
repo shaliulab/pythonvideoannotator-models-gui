@@ -118,5 +118,6 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		super(VideoGUI, self).show()
 		
 			
-
+	def on_click(self, event, x, y):
+		for obj in self.objects: obj.on_click(event, x, y)
 

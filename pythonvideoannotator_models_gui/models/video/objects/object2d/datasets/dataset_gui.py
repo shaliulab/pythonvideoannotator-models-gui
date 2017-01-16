@@ -132,3 +132,5 @@ class DatasetGUI(IModelGUI):
 
 
 	def draw(self, frame, frame_index):pass
+
+	def on_click(self, event, x, y):pass
