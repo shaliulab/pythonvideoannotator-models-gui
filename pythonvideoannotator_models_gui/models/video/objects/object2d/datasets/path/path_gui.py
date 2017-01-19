@@ -19,7 +19,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		Path.__init__(self, object2d)
 		BaseWidget.__init__(self, '2D Object', parent_win=object2d)
 
-		self.__create_tree_nodes()
+		self.create_tree_nodes()
 		
 
 		
@@ -126,15 +126,17 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 	### AUX FUNCTIONS ####################################################
 	######################################################################
 
-	def __create_tree_nodes(self):
-
-		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_PATH, parent=self.parent_treenode )
+	def create_popupmenu_actions(self):
 		self.tree.add_popup_menu_option(
 			label='Remove', 
 			function_action=self.__remove_path_dataset, 
 			item=self.treenode, icon=conf.ANNOTATOR_ICON_DELETE
 		)
+		
+	def create_tree_nodes(self):
+		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_PATH, parent=self.parent_treenode )
 		self.treenode.win = self
+		self.create_popupmenu_actions()
 
 		self.create_group_node('position', 		icon=conf.ANNOTATOR_ICON_POSITION)
 		self.create_data_node('position > x', 	icon=conf.ANNOTATOR_ICON_X)
@@ -165,8 +167,10 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 
 
 	def __sel_pto_btn_event(self):
-		if self.mainwindow._player.video_index<0:return 
-		self._sel_pts.append( self.mainwindow._player.video_index)
+		video_index = self.mainwindow._player.video_index-1
+
+		if video_index<0:return 
+		self._sel_pts.append(video_index)
 		#store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2: 
 			#########################################################
@@ -231,7 +235,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 
 	def on_click(self, event, x, y):
 		if event.button() == 1:
-			frame_index = self.mainwindow._player.video_index
+			frame_index = self.mainwindow._player.video_index-1
 
 			if self._mark_pto_btn.checked:
 				self.set_position(frame_index if frame_index>=0 else 0, x, y)

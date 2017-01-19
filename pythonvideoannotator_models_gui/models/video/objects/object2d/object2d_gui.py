@@ -6,6 +6,7 @@ from pyforms.Controls import ControlButton
 from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlLabel
 from pyforms.Controls import ControlText
+
 from pythonvideoannotator_models.models.video.objects.object2d import Object2D
 from pythonvideoannotator_models_gui.dialogs import Dialog
 from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
@@ -24,7 +25,7 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 		self._addcontours	= ControlButton('Add contours')
 		self._addvalues		= ControlButton('Add values')
 		self._removeobj  	= ControlButton('Remove')
-
+		
 
 		self.formset = [
 			'_name', 			
@@ -45,6 +46,9 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 		self._removeobj.value = self.__remove_object
 
 		self.create_tree_nodes()
+
+
+		
 
 	######################################################################
 	### FUNCTIONS ########################################################
@@ -82,6 +86,8 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 			item=self.treenode, icon=conf.ANNOTATOR_ICON_INFO
 		)
 
+		
+		self.tree.add_popup_menu_option('-', item=self.treenode)
 		self.tree.add_popup_menu_option(
 			label='Remove', 
 			function_action=self.__remove_object, 

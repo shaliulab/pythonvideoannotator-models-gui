@@ -6,6 +6,8 @@ from pyforms.Controls import ControlButton
 from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlLabel
 from pyforms.Controls import ControlText
+
+from pyforms.Controls import ControlCheckBoxList
 from pythonvideoannotator.utils import tools
 from pythonvideoannotator_models_gui.models.video.objects.object2d.utils import points as pts_utils
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours
@@ -21,11 +23,12 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		BaseWidget.__init__(self, '2D Object', parent_win=object2d)
 
 		self._remove_btn = ControlButton('Remove')
+		self._layers 	 = ControlCheckBoxList('Layers')
 
 		self._formset = [ 
 			'_name',
 			'_remove_btn',
-			' '
+			'_layers'
 		]
 
 
@@ -37,34 +40,33 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
 		self.create_tree_nodes()
 
+		self._layers.value = [
+			('contours', True),
+			('bounding rect', False),
+			('fit ellipse', False),
+			('extreme points', False),
+			('convex hull', False),
+			('rotated rectangle', False),
+			('minimum enclosing circle', False),
+			('minimum enclosing triangle', False)
+		]
+
 	######################################################################
 	### FUNCTIONS ########################################################
 	######################################################################
-
-	def create_tree_nodes(self):
-
-		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_CONTOUR, parent=self.parent_treenode )
+	def create_popupmenu_actions(self):
 		self.tree.add_popup_menu_option(
 			label='Remove', 
 			function_action=self.remove_dataset, 
 			item=self.treenode, icon=conf.ANNOTATOR_ICON_DELETE
-		)
+		)		
+
+	def create_tree_nodes(self):
+		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_CONTOUR, parent=self.parent_treenode )
 		self.treenode.win = self
+		self.create_popupmenu_actions()
 
-		self.create_group_node('position', icon=conf.ANNOTATOR_ICON_POSITION)
-		self.create_data_node('position > x', 	icon=conf.ANNOTATOR_ICON_X)
-		self.create_data_node('position > y', 	icon=conf.ANNOTATOR_ICON_Y)
-
-		self.create_group_node('velocity', 			icon=conf.ANNOTATOR_ICON_VELOCITY)
-		self.create_data_node('velocity > x', 		icon=conf.ANNOTATOR_ICON_X)
-		self.create_data_node('velocity > y', 		icon=conf.ANNOTATOR_ICON_Y)
-		self.create_data_node('velocity > absolute', icon=conf.ANNOTATOR_ICON_INFO)
-
-		self.create_group_node('acceleration', 			icon=conf.ANNOTATOR_ICON_ACCELERATION)
-		self.create_data_node('acceleration > x', 		icon=conf.ANNOTATOR_ICON_X)
-		self.create_data_node('acceleration > y', 		icon=conf.ANNOTATOR_ICON_Y)
-		self.create_data_node('acceleration > absolute', icon=conf.ANNOTATOR_ICON_INFO)
-
+		
 		self.create_tracking_tree_nodes()
 
 
@@ -124,6 +126,8 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		self.create_data_node('bounding rect > height', icon=conf.ANNOTATOR_ICON_HEIGHT)
 		self.create_data_node('bounding rect > aspect ratio', icon=conf.ANNOTATOR_ICON_ASPECT_RATIO)
 		self.create_data_node('bounding rect > area',   icon=conf.ANNOTATOR_ICON_AREA)
+		self.create_data_node('bounding rect > perimeter',   icon=conf.ANNOTATOR_ICON_AREA)
+		self.create_data_node('bounding rect > equivalent diameter',   icon=conf.ANNOTATOR_ICON_AREA)
 		self.create_data_node('bounding rect > extend', icon=conf.ANNOTATOR_ICON_INFO)
 
 	def get_boundingrect_leftx_value(self, index):
@@ -151,7 +155,19 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 	def get_boundingrect_area_value(self, index):
 		v = self.get_bounding_box(index)
 		return v[0]*v[1] if v is not None else None
+
+	def get_boundingrect_perimeter_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		area = cv2.contourArea(cnt)
+		x,y,w,h = cv2.boundingRect(cnt)
+		return 2*w+2*h
 		
+	def get_boundingrect_equivalentdiameter_value(self, index):
+		area = self.get_boundingrect_area_value(index)
+		if area is None: return None
+		return np.sqrt(4*area/np.pi)
+
 	def get_boundingrect_extend_value(self, index):
 		cnt = self.get_contour(index)
 		if cnt is None: return None
@@ -164,11 +180,141 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
 
 
+
+
+
+
+
+
+	################# minimum enclosing triangle ###################################################
+		
+	def create_tracking_minenclosingtriangle_tree_nodes(self):
+		self.create_group_node('minimum enclosing triangle', icon=conf.ANNOTATOR_ICON_AREA)
+		
+		self.create_group_node('minimum enclosing triangle > p1', icon=conf.ANNOTATOR_ICON_POINT)
+		self.create_data_node('minimum enclosing triangle > p1 > x', icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('minimum enclosing triangle > p1 > y', icon=conf.ANNOTATOR_ICON_Y)
+
+		self.create_group_node('minimum enclosing triangle > p2', icon=conf.ANNOTATOR_ICON_POINT)
+		self.create_data_node('minimum enclosing triangle > p2 > x', icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('minimum enclosing triangle > p2 > y', icon=conf.ANNOTATOR_ICON_Y)
+
+		self.create_group_node('minimum enclosing triangle > p3', icon=conf.ANNOTATOR_ICON_POINT)
+		self.create_data_node('minimum enclosing triangle > p3 > x', icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('minimum enclosing triangle > p3 > y', icon=conf.ANNOTATOR_ICON_Y)
+
+		self.create_data_node('minimum enclosing triangle > perimeter',   icon=conf.ANNOTATOR_ICON_AREA)
+
+	def get_minimumenclosingtriangle(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		res, (p1, p2, p3) = cv2.minEnclosingTriangle(cnt)
+		if not res: return None
+		return p1, p2, p3
+
+
+	def get_minimumenclosingtriangle_p1_x_value(self, index):
+		triangle = self.get_minimumenclosingtriangle(index)
+		if triangle is None: return None
+		return triangle[0][0][0]
+
+	def get_minimumenclosingtriangle_p1_y_value(self, index):
+		triangle = self.get_minimumenclosingtriangle(index)
+		if triangle is None: return None
+		return triangle[0][0][1]
+
+	def get_minimumenclosingtriangle_p2_x_value(self, index):
+		triangle = self.get_minimumenclosingtriangle(index)
+		if triangle is None: return None
+		return triangle[0][1][0]
+
+	def get_minimumenclosingtriangle_p2_y_value(self, index):
+		triangle = self.get_minimumenclosingtriangle(index)
+		if triangle is None: return None
+		return triangle[0][1][1]
+
+	def get_minimumenclosingtriangle_p3_x_value(self, index):
+		triangle = self.get_minimumenclosingtriangle(index)
+		if triangle is None: return None
+		return triangle[0][2][0]
+
+	def get_minimumenclosingtriangle_p3_y_value(self, index):
+		triangle = self.get_minimumenclosingtriangle(index)
+		if triangle is None: return None
+		return triangle[0][2][1]
+
+	def get_minimumenclosingtriangle_perimeter_value(self, index):
+		triangle = self.get_minimumenclosingtriangle(index)
+		if triangle is None: return None
+		p1, p2, p3 = triangle
+		return pts_utils.lin_dist(p1[0], p2[0]) + pts_utils.lin_dist(p2[0], p3[0]) + pts_utils.lin_dist(p3[0], p1[0])
+
+	################# minimum enclosing triangle ###################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	def create_tracking_minenclosingcircle_tree_nodes(self):
 		self.create_group_node('minimum enclosing circle', 		icon=conf.ANNOTATOR_ICON_CIRCLE)
-		self.create_group_node('minimum enclosing circle > x', 	icon=conf.ANNOTATOR_ICON_X)
-		self.create_group_node('minimum enclosing circle > y', 	icon=conf.ANNOTATOR_ICON_Y)
-		self.create_group_node('minimum enclosing circle > radius', icon=conf.ANNOTATOR_ICON_WIDTH)
+		self.create_data_node('minimum enclosing circle > x', 	icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('minimum enclosing circle > y', 	icon=conf.ANNOTATOR_ICON_Y)
+		self.create_data_node('minimum enclosing circle > radius', icon=conf.ANNOTATOR_ICON_WIDTH)
+
+
+
+	def get_minimumenclosingcircle(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		return cv2.minEnclosingCircle(cnt)
+
+
+	def get_minimumenclosingcircle_x_value(self, index):
+		circle = self.get_minimumenclosingcircle(index)
+		if circle is None: return None
+		center, radius = circle
+		return center[0]
+
+	def get_minimumenclosingcircle_y_value(self, index):
+		circle = self.get_minimumenclosingcircle(index)
+		if circle is None: return None
+		center, radius = circle
+		return center[1]
+
+	def get_minimumenclosingcircle_radius_value(self, index):
+		circle = self.get_minimumenclosingcircle(index)
+		if circle is None: return None
+		center, radius = circle
+		return radius
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	################# EXTREME POINTS ####################################################
@@ -258,14 +404,33 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
 
 
-
-
-
 	################# CONVEX HULL ####################################################
 		
 	def create_tracking_convexhull_tree_nodes(self):
 		self.create_group_node('convex hull', 		  icon=conf.ANNOTATOR_ICON_HULL)
+		self.create_data_node('convex hull > area', icon=conf.ANNOTATOR_ICON_AREA)
+		self.create_data_node('convex hull > perimeter', icon=conf.ANNOTATOR_ICON_AREA)
+		self.create_data_node('convex hull > equivalent diameter', icon=conf.ANNOTATOR_ICON_CIRCLE)
 		self.create_data_node('convex hull > solidity', icon=conf.ANNOTATOR_ICON_BLACK_CIRCLE)
+
+	def get_convexhull_area_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		hull = cv2.convexHull(cnt)
+		return cv2.contourArea(hull)
+
+	def get_convexhull_perimeter_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		hull = cv2.convexHull(cnt)
+		return cv2.arcLength(hull, True)
+
+	def get_convexhull_equivalentdiameter_value(self, index):
+		cnt = self.get_contour(index)
+		if cnt is None: return None
+		hull = cv2.convexHull(cnt)
+		area = cv2.contourArea(hull)
+		return np.sqrt(4*area/np.pi)
 		
 	def get_convexhull_solidity_value(self, index):
 		cnt = self.get_contour(index)
@@ -441,12 +606,28 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		
 		self.create_data_node('equivalent diameter', icon=conf.ANNOTATOR_ICON_CIRCLE)
 
+
+		self.create_group_node('position', icon=conf.ANNOTATOR_ICON_POSITION)
+		self.create_data_node('position > x', 	icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('position > y', 	icon=conf.ANNOTATOR_ICON_Y)
+
+		self.create_group_node('velocity', 			icon=conf.ANNOTATOR_ICON_VELOCITY)
+		self.create_data_node('velocity > x', 		icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('velocity > y', 		icon=conf.ANNOTATOR_ICON_Y)
+		self.create_data_node('velocity > absolute', icon=conf.ANNOTATOR_ICON_INFO)
+
+		self.create_group_node('acceleration', 			icon=conf.ANNOTATOR_ICON_ACCELERATION)
+		self.create_data_node('acceleration > x', 		icon=conf.ANNOTATOR_ICON_X)
+		self.create_data_node('acceleration > y', 		icon=conf.ANNOTATOR_ICON_Y)
+		self.create_data_node('acceleration > absolute', icon=conf.ANNOTATOR_ICON_INFO)
+
 		self.create_tracking_boundingrect_tree_nodes()		
 		self.create_tracking_fitellipse_tree_nodes()
 		self.create_tracking_extremepoints_tree_nodes()
 		self.create_tracking_convexhull_tree_nodes()
 		self.create_tracking_rotatedrectangle_tree_nodes()
 		self.create_tracking_minenclosingcircle_tree_nodes()
+		self.create_tracking_minenclosingtriangle_tree_nodes()
 		self.create_tracking_moments_tree_nodes()
 		self.create_tracking_humoments_tree_nodes()
 				
@@ -454,20 +635,69 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 	### FUNCTIONS ########################################################
 	######################################################################
 
+	def __draw_point(self, frame, p, color=(100,0,100)):
+		cv2.circle(frame, p, 5, (255,255,255), -1)
+		cv2.circle(frame, p, 3, color, -1)
 
-	def draw(self, frame, frame_index):
+	def draw_contour(self, frame, frame_index):
 		cnt = self.get_contour(frame_index)
 		if cnt is not None: cv2.polylines(frame, np.array( [cnt] ), True, (0,255,0), 2)
+	
+	def draw_boundingrect(self, frame, frame_index):
+		pass
 
+	def draw_fitellipse(self, frame, frame_index):
+		ellipse = self.get_fit_ellipse(frame_index)
+		if ellipse is None: return None
+		(x,y),(MA,ma),angle = ellipse
+		(x,y),(MA,ma),angle = (x,y),(MA,ma),angle
+		cv2.ellipse(frame,(int(round(x)),int(round(y)) ),( int(round(MA)), int(round(ma)) ) ,int(round(angle)),0,360,(0,0,255), 1)
+
+	def draw_extremepoints(self, frame, frame_index):
 		head, tail = self.get_extreme_points(frame_index)
-		if head is not None:
-			cv2.circle(frame, head, 5, (255,255,255), -1)
-			cv2.circle(frame, head, 3, (100,0,100), -1)
-		if tail is not None:
-			cv2.circle(frame, tail, 5, (255,255,255), -1)
-			cv2.circle(frame, tail, 3, (100,100,0), -1)
+		if head is not None: self.__draw_point(frame, head, color=(100,0,100) )
+		if tail is not None: self.__draw_point(frame, tail, color=(100,100,0) )
+
+	def draw_convexhull(self, frame, frame_index):
+		cnt = self.get_contour(frame_index)
+		if cnt is None: return None
+		hull = cv2.convexHull(cnt)
+		cv2.polylines(frame, np.array( [hull] ), True, (0,0,255), 1)
+
+	def draw_rotatedrectangle(self, frame, frame_index):
+		pass
+
+	def draw_minimumenclosingcircle(self, frame, frame_index):
+		circle = self.get_minimumenclosingcircle(frame_index)
+		if circle is not None:
+			center, radius = circle
+			center = int(round(center[0])), int(round(center[1]))
+			cv2.circle(frame, center, int(round(radius)), (255,0,0))
 
 
+	def draw_minenclosingtriangle(self, frame, frame_index):
+		triangle = self.get_minimumenclosingtriangle(frame_index)
+		if triangle is not None:
+			p1, p2, p3 = triangle
+			p1, p2, p3 = tuple(p1[0]),tuple(p2[0]),tuple(p3[0])
+			cv2.line(frame, p1, p2, 255)
+			cv2.line(frame, p2, p3, 255)
+			cv2.line(frame, p3, p1, 255)
+
+
+
+
+	def draw(self, frame, frame_index):
+		layers = self._layers.value
+		if 'contours' in layers: 					self.draw_contour(frame, frame_index)
+		if 'bounding rect' in layers: 				self.draw_boundingrect(frame, frame_index)
+		if 'fit ellipse' in layers: 				self.draw_fitellipse(frame, frame_index)
+		if 'extreme points' in layers: 				self.draw_extremepoints(frame, frame_index)
+		if 'convex hull' in layers: 				self.draw_convexhull(frame, frame_index)
+		if 'rotated rectangle' in layers: 			self.draw_rotatedrectangle(frame, frame_index)
+		if 'minimum enclosing circle' in layers:	self.draw_minimumenclosingcircle(frame, frame_index)
+		if 'minimum enclosing triangle' in layers: 	self.draw_minenclosingtriangle(frame, frame_index)
+		
 	################# CONTOUR #########################################################
 
 	def get_area_value(self, index):

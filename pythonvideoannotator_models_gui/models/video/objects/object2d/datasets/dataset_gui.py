@@ -68,6 +68,7 @@ class DatasetGUI(IModelGUI):
 		# if so add the option to the tree node
 		if hasattr(self, data_func_name ):
 			data_func = getattr(self, data_func_name )
+			child_node.data_function = data_func
 
 			action = tools.make_lambda_func(self.send_2_timeline_event, graph_name=fullname, data_func=data_func )
 			self.tree.add_popup_menu_option(

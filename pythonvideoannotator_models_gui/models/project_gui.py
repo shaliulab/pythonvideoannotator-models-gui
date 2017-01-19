@@ -13,7 +13,7 @@ from pyforms.dialogs  import CsvParserDialog
 from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models.models import Project
 from pythonvideoannotator_models_gui.models.video import Video
-from pythonvideoannotator_models_gui.models.video.image import Image
+from pythonvideoannotator_models_gui.models.video.objects.image import Image
 
 
 class ProjectGUI(IModelGUI, Project, BaseWidget):

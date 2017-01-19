@@ -6,7 +6,12 @@ from pyforms import BaseWidget
 from pyforms.Controls import ControlText
 from pyforms.Controls import ControlFile
 from pyforms.Controls import ControlButton
-from pythonvideoannotator_models_gui.models.video.image import Image
+
+
+from pythonvideoannotator_models.models.video.objects.video_object import VideoObject
+from pythonvideoannotator_models_gui.models.video.objects.image import Image
+from pythonvideoannotator_models_gui.models.video.objects.geometry import Geometry
+from pythonvideoannotator_models_gui.models.video.objects.note import Note
 from pythonvideoannotator_models_gui.models.video.objects.object2d import Object2D
 from pythonvideoannotator_models_gui.dialogs import Dialog
 from pythonvideoannotator_models.models.video import Video
@@ -57,6 +62,13 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 	########### FUNCTIONS ###############################################################
 	#####################################################################################
 
+	def __sub__(self, obj):
+		super(VideoGUI, self).__sub__(obj)
+		if isinstance(obj, VideoObject): 
+			tree = self.project.tree
+			tree -= obj.treenode
+		return self
+
 	def draw(self, frame, frame_index):
 		for obj in self.objects: obj.draw(frame, frame_index)
 
@@ -67,15 +79,35 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		self.tree.selected_item = self.treenode
 
 		self.tree.add_popup_menu_option(
-			label='Add an object', 
+			label='Add object', 
 			function_action=self.create_object, 
 			item=self.treenode, icon=conf.ANNOTATOR_ICON_OBJECT
 		)
 		self.tree.add_popup_menu_option(
-			label='Add an image', 
+			label='Add geometry', 
+			function_action=self.create_geometry, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_GEOMETRY
+		)
+		self.tree.add_popup_menu_option(
+			label='Add note', 
+			function_action=self.create_note, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_NOTE
+		)
+		self.tree.add_popup_menu_option(
+			label='Add image', 
 			function_action=self.create_image, 
 			item=self.treenode, icon=conf.ANNOTATOR_ICON_IMAGE
 		)
+
+		self.tree.add_popup_menu_option('-', item=self.treenode)
+
+		self.tree.add_popup_menu_option(
+			label='Capture the current frame', 
+			function_action=self.__capture_current_frame, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_IMAGE
+		)
+
+		self.tree.add_popup_menu_option('-', item=self.treenode)
 
 		self.tree.add_popup_menu_option(
 			label='Remove', 
@@ -84,16 +116,28 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		)
 
 	def choose_file(self): self._file.click()
-		
-
 	def create_object(self): return Object2D(self)
 	def create_image(self): return Image(self)
+	def create_geometry(self): return Geometry(self)
+	def create_note(self): return Note(self)
 
 
 
 	#####################################################################################
 	########### EVENTS ##################################################################
 	#####################################################################################
+
+	def __capture_current_frame(self):
+		image = self.create_image()
+
+		current_index = self.video_capture.get(cv2.CAP_PROP_POS_FRAMES)
+		current_index = int(current_index if current_index==0 else (current_index-1))
+		self.video_capture.set(cv2.CAP_PROP_POS_FRAMES, current_index )
+
+		image.name = "frame({0})".format(current_index)
+
+		res, img = self.video_capture.read()
+		image.image = img
 
 	def __remove_video_changed_event(self): 
 		project = self.project

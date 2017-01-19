@@ -48,15 +48,7 @@ class ValueGUI(DatasetGUI, Value, BaseWidget):
 				self._values[i-1] = 0
 		QtGui.QMessageBox.about(self, "Info", "Operation complete.")
 
-
-	def create_tree_nodes(self):
-		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_INFO, parent=self.parent_treenode )
-		self.tree.add_popup_menu_option(
-			label='Remove', 
-			function_action=self.remove_dataset, 
-			item=self.treenode, icon=conf.ANNOTATOR_ICON_DELETE
-		)
-		self.treenode.win = self
+	def create_popupmenu_actions(self):
 
 		fullname = self.name
 		action = tools.make_lambda_func(self.send_2_timeline_event, graph_name=fullname, data_func=self.get_value )
@@ -80,6 +72,22 @@ class ValueGUI(DatasetGUI, Value, BaseWidget):
 			item=self.treenode,
 			icon=conf.ANNOTATOR_ICON_PATH
 		)
+		
+		self.tree.add_popup_menu_option("-", item=self.treenode)
+		self.tree.add_popup_menu_option(
+			label='Remove', 
+			function_action=self.remove_dataset, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_DELETE
+		)
+
+		
+
+	def create_tree_nodes(self):
+		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_INFO, parent=self.parent_treenode )
+		self.treenode.win = self
+		self.create_popupmenu_actions()
+
+		
 
 	
 
