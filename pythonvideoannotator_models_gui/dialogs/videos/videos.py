@@ -45,6 +45,10 @@ class VideosDialog(BaseWidget):
 	#####################################################################
 
 	def video_selection_changed_event(self):  pass
+
+	def destroy(self, destroyWindow = True, destroySubWindows = True):
+		self._panel.value.destroy(destroyWindow, destroySubWindows)
+		super(VideosDialog, self).destroy(destroyWindow, destroySubWindows)
 	
 
 	#####################################################################

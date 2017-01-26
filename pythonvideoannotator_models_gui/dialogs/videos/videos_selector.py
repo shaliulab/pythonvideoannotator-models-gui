@@ -8,8 +8,11 @@ class VideosSelectorDialog(Dialog, BaseWidget):
 
 	def __init__(self, parent_win=None):
 		BaseWidget.__init__(self, 'Videos selector', parent_win=parent_win)
-		Dialog.__init__(self)
 		self._videos  = ControlCheckBoxList('Videos filter')
+
+		Dialog.__init__(self)
+		
+		
 		self.formset = ['_videos']
 		self._videos.selection_changed_event 	= self.__selection_changed_event	
 		

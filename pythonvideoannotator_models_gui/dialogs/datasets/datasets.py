@@ -55,6 +55,11 @@ class DatasetsDialog(BaseWidget):
 	def video_selection_changed_event(self):  pass
 	
 
+	def destroy(self, destroyWindow = True, destroySubWindows = True):
+		self._panel.value.destroy(destroyWindow, destroySubWindows)
+		super(DatasetsDialog, self).destroy(destroyWindow, destroySubWindows)
+	
+
 	#####################################################################
 	### FUNCTIONS #######################################################
 	#####################################################################
@@ -74,6 +79,12 @@ class DatasetsDialog(BaseWidget):
 	
 	@property
 	def datasets(self): 		return self._panel.value.datasets
+
+	@property
+	def datasets_changed_event(self): return self._panel.value.datasets_changed_event
+	@datasets_changed_event.setter
+	def datasets_changed_event(self, value): self._panel.value.datasets_changed_event = value
+	
 	
 	
 	@property
@@ -102,6 +113,8 @@ class DatasetsDialog(BaseWidget):
 	@datasets_filter.setter
 	def datasets_filter(self, value):
 		self._panel.value.datasets_filter = value
+
+
 
 
 

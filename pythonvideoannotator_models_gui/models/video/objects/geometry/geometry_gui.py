@@ -1,4 +1,4 @@
-import csv, cv2, os
+import csv, cv2, os, numpy as np
 from pysettings import conf
 from pyforms import BaseWidget
 from PyQt4 import QtCore, QtGui
@@ -45,7 +45,7 @@ class GeometryGUI(IModelGUI, Geometry, BaseWidget):
 	######################################################################
 
 	def __show_geometry_window(self):
-		self._geometry_window.video_filename = self.video.filename
+		self._geometry_window.video_filename = self.video.filepath
 		self._geometry_window.geometries = self._geometry
 		self._geometry_window.show()
 
@@ -61,7 +61,11 @@ class GeometryGUI(IModelGUI, Geometry, BaseWidget):
 	### OBJECT FUNCTIONS #################################################
 	######################################################################
 
-	def draw(self, frame, frame_index): pass
+	def draw(self, frame, frame_index): 
+		rows = self.geometry
+		for objIndex, (label, points) in enumerate(rows):		
+			cv2.polylines(frame, [np.array(points,np.int32)], True, (0,255,0), 2, lineType=cv2.LINE_AA)			
+		
 		
 	######################################################################
 	### CLASS FUNCTIONS ##################################################

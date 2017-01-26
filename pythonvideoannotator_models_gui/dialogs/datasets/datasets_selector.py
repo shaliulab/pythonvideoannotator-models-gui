@@ -10,17 +10,20 @@ class DatasetsSelectorDialog(Dialog, BaseWidget):
 
 	def __init__(self, parent_win=None):
 		BaseWidget.__init__(self, 'Datasets selector', parent_win=parent_win)
-		Dialog.__init__(self)
 		
 		self._videos   = ControlCheckBoxList('Videos filter')
 		self._objects  = ControlCheckBoxList('Objects filter')
 		self._datasets = ControlCheckBoxList('Datasets filter')
+
+		Dialog.__init__(self)
+		
 
 		self.formset = [('_videos','||','_objects','||','_datasets')]
 
 		self._videos.selection_changed_event 	= self.__selection_changed_event
 		self._videos.changed_event  			= self.__update_objects
 		self._objects.changed_event 			= self.__update_objects
+		self._datasets.changed_event 			= self.__datasets_changed_event
 
 		#for video in conf.PROJECT.videos: self += video
 
@@ -31,11 +34,15 @@ class DatasetsSelectorDialog(Dialog, BaseWidget):
 
 	def __selection_changed_event(self): self.video_selection_changed_event()
 
+	def __datasets_changed_event(self): self.datasets_changed_event()
+
 	#####################################################################
 	### EVENTS ##########################################################
 	#####################################################################
 
 	def video_selection_changed_event(self): pass
+
+	def datasets_changed_event(self): pass
 
 	#####################################################################
 	### FUNCTIONS #######################################################
@@ -100,6 +107,8 @@ class DatasetsSelectorDialog(Dialog, BaseWidget):
 
 		datasets_list = []
 		for obj, checked in self._objects.items:
+			if not isinstance(obj,Object2D): continue
+
 			for dataset in obj.datasets:
 				if hasattr(self, '_datasets_filter') and not self._datasets_filter(dataset): continue
 				
@@ -134,9 +143,9 @@ class DatasetsSelectorDialog(Dialog, BaseWidget):
 		res 	= []
 		for video in videos:
 			datasets_list = []
-			for obj in video.objects:
+			for obj in video.objects2D:
 				for dataset in obj.datasets:
-					if dataset in datasets: 
+					if dataset in datasets:
 						datasets_list.append(dataset)
 			res.append( (video, datasets_list) )
 		return res
