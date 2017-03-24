@@ -17,6 +17,7 @@ class DatasetsSelectorDialog(Dialog, BaseWidget):
 
 		Dialog.__init__(self)
 		
+		self._videos.add_popup_menu_option('Select video', self.__selection_changed_event)
 
 		self.formset = [('_videos','||','_objects','||','_datasets')]
 

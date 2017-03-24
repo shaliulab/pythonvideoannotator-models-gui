@@ -10,7 +10,7 @@ from pyforms.Controls import ControlText
 from pyforms.Controls import ControlCheckBoxList
 from pythonvideoannotator.utils import tools
 from pythonvideoannotator_models_gui.models.video.objects.object2d.utils import points as pts_utils
-from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours
+from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours, points_angle
 
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
 
@@ -22,26 +22,40 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		Contours.__init__(self, object2d)
 		BaseWidget.__init__(self, '2D Object', parent_win=object2d)
 
-		self._remove_btn = ControlButton('Remove')
-		self._layers 	 = ControlCheckBoxList('Layers')
+		self._sel_pts=[]
+
+		self._remove_btn 		= ControlButton('Remove')
+		self._layers 	 		= ControlCheckBoxList('Layers')
+		self._sel_pto_btn 		= ControlButton('Select point')		
+		self._switchangle_btn 	= ControlButton('Switch orientation')
 
 		self._formset = [ 
 			'_name',
 			'_remove_btn',
+			'_sel_pto_btn',
+			'_switchangle_btn',
 			'_layers'
 		]
 
+		self._switchangle_btn.hide()
+
 
 		#### set controls ##############################################
-		self._remove_btn.icon = conf.ANNOTATOR_ICON_REMOVE
+		self._remove_btn.icon 		= conf.ANNOTATOR_ICON_REMOVE	
+		self._sel_pto_btn.icon 		= conf.ANNOTATOR_ICON_SELECTPOINT
+		self._switchangle_btn.icon 	= conf.ANNOTATOR_ICON_REMOVE
 
 		#### set events #################################################
-		self._remove_btn.value			 = self.remove_dataset
+		self._remove_btn.value 		= self.remove_dataset
+		self._sel_pto_btn.value 	= self.__sel_pto_btn_event
+		self._switchangle_btn.value	= self.__switchangle_btn_event
+
 
 		self.create_tree_nodes()
 
 		self._layers.value = [
 			('contours', True),
+			('angle', True),
 			('bounding rect', False),
 			('fit ellipse', False),
 			('extreme points', False),
@@ -50,6 +64,38 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 			('minimum enclosing circle', False),
 			('minimum enclosing triangle', False)
 		]
+
+	######################################################################
+	### EVENTS ###########################################################
+	######################################################################
+	def __sel_pto_btn_event(self):
+		video_index = self.mainwindow._player.video_index-1
+
+		if video_index<0 and self.get_position(video_index) is not None:return 
+
+		self._sel_pts.append(video_index)
+		self._sel_pts =sorted(self._sel_pts)
+		#store a temporary path for interpolation visualization
+		if len(self._sel_pts) == 2: 
+			self._switchangle_btn.show()
+		elif len(self._sel_pts) > 2:
+			self._sel_pts = self._sel_pts[-1:]
+			self._switchangle_btn.hide()
+		else:
+			self._switchangle_btn.hide()
+
+		self.mainwindow._player.refresh()
+
+
+	def __switchangle_btn_event(self):
+		if len(self._sel_pts) == 2:
+			for i in range(self._sel_pts[0], self._sel_pts[1]+1):
+				head, tail = self.get_extreme_points(i)
+				centroid = self.get_position(i)
+				self._angles[i] = points_angle(centroid, tail)
+
+			self.mainwindow._player.refresh()
+
 
 	######################################################################
 	### FUNCTIONS ########################################################
@@ -601,6 +647,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
 	def create_tracking_tree_nodes(self):
 		################# CONTOUR #########################################################
+		self.create_data_node('angle', icon=conf.ANNOTATOR_ICON_ANGLE)
 		self.create_data_node('area', icon=conf.ANNOTATOR_ICON_AREA)
 		self.create_data_node('perimeter', icon=conf.ANNOTATOR_ICON_AREA)
 		
@@ -642,9 +689,20 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 	def draw_contour(self, frame, frame_index):
 		cnt = self.get_contour(frame_index)
 		if cnt is not None: cv2.polylines(frame, np.array( [cnt] ), True, (0,255,0), 2)
+
+	def draw_angle(self, frame, frame_index):
+		angle = self.get_angle(frame_index)
+		p1 = self.get_position(frame_index)
+		if angle is None or p1 is None: return None
+
+		p2 = int(round(p1[0]+40*math.cos(angle))), int(round(p1[1]+40*math.sin(angle)))
+		cv2.line(frame, p1, p2, (255,100,0), 2)
 	
 	def draw_boundingrect(self, frame, frame_index):
-		pass
+		rect = self.get_bounding_box(frame_index)
+		if rect is None: return None
+		x,y,w,h = rect
+		cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
 
 	def draw_fitellipse(self, frame, frame_index):
 		ellipse = self.get_fit_ellipse(frame_index)
@@ -688,8 +746,16 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
 
 	def draw(self, frame, frame_index):
+
+		for i in self._sel_pts: #store a temporary path for interpolation visualization
+			p = self.get_position(i)
+			cv2.circle(frame, p, 20, (255, 255, 255), 4, lineType=cv2.LINE_AA)  # pylint: disable=no-member
+			cv2.circle(frame, p, 20, (50, 50, 255), 1, lineType=cv2.LINE_AA)  # pylint: disable=no-member
+
+
 		layers = self._layers.value
 		if 'contours' in layers: 					self.draw_contour(frame, frame_index)
+		if 'angle' in layers: 						self.draw_angle(frame, frame_index)
 		if 'bounding rect' in layers: 				self.draw_boundingrect(frame, frame_index)
 		if 'fit ellipse' in layers: 				self.draw_fitellipse(frame, frame_index)
 		if 'extreme points' in layers: 				self.draw_extremepoints(frame, frame_index)
@@ -699,6 +765,9 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		if 'minimum enclosing triangle' in layers: 	self.draw_minenclosingtriangle(frame, frame_index)
 		
 	################# CONTOUR #########################################################
+
+	def get_angle_value(self, index):
+		return self.get_angle(index)
 
 	def get_area_value(self, index):
 		cnt = self.get_contour(index)

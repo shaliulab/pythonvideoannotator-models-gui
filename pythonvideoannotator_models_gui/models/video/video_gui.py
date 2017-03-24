@@ -6,6 +6,7 @@ from pyforms import BaseWidget
 from pyforms.Controls import ControlText
 from pyforms.Controls import ControlFile
 from pyforms.Controls import ControlButton
+from pyforms.Controls import ControlLabel
 
 
 from pythonvideoannotator_models.models.video.objects.video_object import VideoObject
@@ -28,7 +29,9 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		self._addobj 		= ControlButton('Add object')
 		self._addimg 		= ControlButton('Add Image')
 		self._removevideo  	= ControlButton('Remove')
-
+		self._fps_label 	= ControlLabel('Frames per second')
+		self._width_label 	= ControlLabel('Width')
+		self._height_label 	= ControlLabel('Height')
 		
 
 		self.formset = [
@@ -36,7 +39,9 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 			'_file', 			
 			#('_addobj', '_addimg'),
 			'_removevideo',
-			' '
+			'_fps_label',
+			('_width_label', '_height_label'),
+			' '			
 		]
 
 		self._name.enabled = False
@@ -165,6 +170,14 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		Video.filepath.fset(self, value)		
 		self.mainwindow.video 	= self.video_capture
 		self._file.value 		= value
+
+		fps 	= self.video_capture.get(cv2.CAP_PROP_FPS)
+		width 	= self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)
+		height 	= self.video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+		self._fps_label.value = "FPS: {0}".format(fps)
+		self._width_label.value = "Width: {0}".format(width)
+		self._height_label.value = "Height: {0}".format(height)
 		
 			
 	def on_click(self, event, x, y):
