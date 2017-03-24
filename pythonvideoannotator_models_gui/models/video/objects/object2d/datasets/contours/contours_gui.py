@@ -702,7 +702,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		rect = self.get_bounding_box(frame_index)
 		if rect is None: return None
 		x,y,w,h = rect
-		cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+		cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
 
 	def draw_fitellipse(self, frame, frame_index):
 		ellipse = self.get_fit_ellipse(frame_index)
