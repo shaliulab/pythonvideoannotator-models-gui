@@ -1,7 +1,6 @@
 import math, cv2, numpy as np
 from pysettings import conf
 from pyforms import BaseWidget
-from PyQt4 import QtCore, QtGui
 from pyforms.Controls import ControlButton
 from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlLabel
@@ -10,6 +9,13 @@ from pythonvideoannotator.utils import tools
 
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
+
+if conf.PYFORMS_USE_QT5:
+	from PyQt5 import QtGui, QtCore
+
+else:	
+	from PyQt4 import QtGui, QtCore
+
 
 
 class PathGUI(DatasetGUI, Path, BaseWidget):

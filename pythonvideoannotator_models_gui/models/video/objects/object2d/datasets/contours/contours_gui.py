@@ -1,7 +1,6 @@
 import math, cv2, numpy as np
 from pysettings import conf
 from pyforms import BaseWidget
-from PyQt4 import QtCore, QtGui
 from pyforms.Controls import ControlButton
 from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlLabel

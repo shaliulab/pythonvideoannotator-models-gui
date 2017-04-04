@@ -3,7 +3,13 @@ from pysettings import conf
 from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models_gui.dialogs import Dialog
 from pythonvideoannotator.utils import tools
-from PyQt4 import QtGui
+
+if conf.PYFORMS_USE_QT5:
+	from PyQt5 import QtGui
+
+else:	
+	from PyQt4 import QtGui
+
 
 class DatasetGUI(IModelGUI):
 

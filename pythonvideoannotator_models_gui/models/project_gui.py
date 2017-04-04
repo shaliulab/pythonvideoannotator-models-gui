@@ -3,7 +3,6 @@
 import os
 from pysettings import conf
 from pyforms import BaseWidget
-from PyQt4 import QtGui, QtCore
 from pyforms.Controls import ControlButton
 from pyforms.Controls import ControlTree
 from pyforms.Controls import ControlList
