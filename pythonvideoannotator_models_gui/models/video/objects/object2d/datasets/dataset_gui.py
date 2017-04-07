@@ -132,7 +132,7 @@ class DatasetGUI(IModelGUI):
 			with open(filename, 'w') as outfile:
 				for i in range(len(self)):
 					v = data_func(i)
-					if v is not None:  outfile.write(';'.join(map(str, [i, v]) )+'\n' )
+					if v is not None:  outfile.write((';'.join(map(str, [i, v]) )+'\n') )
 
 	def remove_dataset(self):
 		self.object2d -= self
