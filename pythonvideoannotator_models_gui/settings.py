@@ -1,3 +1,3 @@
-from pyforms.utils.package_finder import PackageFinder
+from pyforms.utils.plugins_finder import PluginsFinder
 
-MODULES = PackageFinder()
+MODULES = PluginsFinder()
