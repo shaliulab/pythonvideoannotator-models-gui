@@ -113,7 +113,8 @@ class DatasetsSelectorDialog(Dialog, BaseWidget):
 			for dataset in obj.datasets:
 				if hasattr(self, '_datasets_filter') and not self._datasets_filter(dataset): continue
 				
-				datasets_list.append(dataset)
+				if dataset not in datasets_list: datasets_list.append(dataset)
+
 				if not checked and dataset in datasets:
 					self._datasets -= dataset
 				elif checked and dataset not in datasets:

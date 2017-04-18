@@ -11,10 +11,11 @@ from pythonvideoannotator_models.models.video.objects.object2d.datasets.path imp
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
 
 if conf.PYFORMS_USE_QT5:
-	from PyQt5 import QtGui, QtCore
-
+	from PyQt5 import QtCore
+	from PyQt5.QtWidgets import QMessageBox
 else:	
-	from PyQt4 import QtGui, QtCore
+	from PyQt4 import QtCore
+	from PyQt5.QtGui import QMessageBox
 
 
 
@@ -50,7 +51,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 
 		#### set controls ##############################################
 		self._interpolation_title.value = 'INTERPOLATION'
-		self._interpolation_mode.add_item("Auto")
+		self._interpolation_mode.add_item("Auto", -1)
 		self._interpolation_mode.add_item("Linear", 'slinear')
 		self._interpolation_mode.add_item("Quadratic", 'quadratic')
 		self._interpolation_mode.add_item("Cubic", 'cubic')
@@ -177,6 +178,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 
 		if video_index<0:return 
 		self._sel_pts.append(video_index)
+		self._sel_pts = sorted(self._sel_pts)
 		#store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2: 
 			#########################################################
@@ -193,7 +195,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 			self._interpolation_mode.hide()
 			self._interpolation_title.hide()
 			self._del_path_btn.hide()
-			self._tmp_path = []
+			self._tmp_points = []
 
 		self.mainwindow._player.refresh()
 
@@ -213,27 +215,27 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 			self.interpolate_range( self._sel_pts[0], self._sel_pts[1], interpolation_mode=mode)
 			self.mainwindow._player.refresh()
 		else:
-			QtGui.QMessageBox.about(self, "Error", "You need to select 2 frames.")
+			QMessageBox.about(self, "Error", "You need to select 2 frames.")
 
 	def __interpolation_mode_changed_event(self): 
 		#store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2:
-
 			self.calculate_tmp_interpolation()
 			self.mainwindow._player.refresh()
 
 	def __del_path_btn_event(self): #store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2:
-			reply = QtGui.QMessageBox.question(self, 'Confirmation',
-											   "Are you sure you want to delete this path?", QtGui.QMessageBox.Yes | QtGui.QMessageBox.No, QtGui.QMessageBox.No)
-			if reply == QtGui.QMessageBox.Yes: #store a temporary path for interpolation visualization
+			reply = QMessageBox.question(self, 'Confirmation',
+											   "Are you sure you want to delete this path?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+			if reply == QMessageBox.Yes: #store a temporary path for interpolation visualization
 				start, end = self._sel_pts[0], self._sel_pts[1]
 				self.delete_range(start+1, end)
 				self.calculate_tmp_interpolation()
 				self.mainwindow._player.refresh()
 		else:
-			QtGui.QMessageBox.about(self, "Error", "You need to select 2 frames.")
+			QMessageBox.about(self, "Error", "You need to select 2 frames.")
 
+	def __lin_dist(self, p1, p2): return np.linalg.norm( (p1[0]-p2[0], p1[1]-p2[1]) )
 
 	######################################################################
 	### VIDEO EVENTS #####################################################
@@ -248,7 +250,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 				self._mark_pto_btn.checked = False
 			else:
 				position = self.get_position(frame_index)
-				if position is not None:
+				if position is not None and self.__lin_dist(position, (x,y))<10:
+
 					modifier = int(event.modifiers())
 
 					# If the control button is pressed will add the blob to the previous selections
@@ -264,20 +267,20 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 						self._sel_pts =[frame_index]
 				else: #store a temporary path for interpolation visualization
 					self._sel_pts =[]  # No object selected: remove previous selections #store a temporary path for interpolation visualization
-				self._sel_pts =sorted(self._sel_pts)
+				self._sel_pts = sorted(self._sel_pts)
 
 			#store a temporary path for interpolation visualization
 			if len(self._sel_pts) == 2: 
 				#########################################################
 				#In case 2 frames are selected, draw the temporary path##
 				#########################################################
-				#self.calculate_tmp_interpolation()
+				self.calculate_tmp_interpolation()
 				if self.visible:
 					self._interpolate_btn.show()
 					self._interpolation_mode.show()
 					self._interpolation_title.show()
 					self._del_path_btn.show()
-					self._sel_pto_btn.hide()
+					#self._sel_pto_btn.hide()
 				#########################################################
 			else:
 				if self.visible:
@@ -285,55 +288,15 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 					self._interpolation_mode.hide()
 					self._interpolation_title.hide()
 					self._del_path_btn.hide()
-				self._tmp_path = []
+				self._tmp_points = []
 				
 			
 			self.mainwindow._player.refresh()
 
-	def draw_position(self, frame, frame_index):
-		pos = self.get_position(frame_index)
-		if pos is None: return
+	
 		
-		cv2.circle(frame, pos, 8, (255,255,255), -1, lineType=cv2.LINE_AA)
-		cv2.circle(frame, pos, 6, (100,0,100), 	 -1, lineType=cv2.LINE_AA)
-
-	def draw_circle(self, frame, frame_index):
-		position = self.get_position(frame_index)
-		if position != None:
-			cv2.circle(frame, position[:2], 20, (255, 255, 255), 4, lineType=cv2.LINE_AA)  # pylint: disable=no-member
-			cv2.circle(frame, position[:2], 20, (50, 50, 255), 1, lineType=cv2.LINE_AA)  # pylint: disable=no-member
-
-			cv2.putText(frame, str(frame_index), position[:2], cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 0), thickness=2, lineType=cv2.LINE_AA)  # pylint: disable=no-member
-			cv2.putText(frame, str(frame_index), position[:2], cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), thickness=1, lineType=cv2.LINE_AA)  # pylint: disable=no-member
-
-	def draw(self, frame, frame_index):
-
-		self.draw_position(frame, frame_index)
-
-		# Draw the selected blobs
-		for item in self._sel_pts: #store a temporary path for interpolation visualization
-			self.draw_circle(frame, item)
-
-		# Draw the selected path #store a temporary path for interpolation visualization
-		if 1 <= len(self._sel_pts) == 2: #store a temporary path for interpolation visualization
-			start = self._sel_pts[0] #store a temporary path for interpolation visualization
-			end = frame_index if len(self._sel_pts)==1 else self._sel_pts[1]
-
-			cnt = np.int32(self._points[start:end])
-		
-			cv2.polylines(frame, [cnt], False, (0,0,255), 1, lineType=cv2.LINE_AA)
-			
-		"""
-		# Draw a temporary path
-		for i in range(len(self._tmp_points) - 1):
-			p1 = self._tmp_points[i]
-			p2 = self._tmp_points[i + 1]
-			p1 = (int(p1[0]), int(p1[1]))
-			p2 = (int(p2[0]), int(p2[1]))
-			cv2.line(frame, p1, p2, (255, 0, 0), 1)
-		"""
-
-
+	def draw(self, frame, frame_index): 
+		Path.draw(self, frame, frame_index)
 	######################################################################
 	### PROPERTIES #######################################################
 	######################################################################
@@ -347,5 +310,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 
 	@property 
 	def parent_treenode(self):  return self._object2d.treenode
+
+	@property
+	def interpolation_mode(self): return None if self._interpolation_mode.value==-1 else self._interpolation_mode.value
 
 

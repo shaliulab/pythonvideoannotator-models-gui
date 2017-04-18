@@ -98,7 +98,7 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 		if item is not None: self.video -= item.win
 
 	def create_path(self): return Path(self)
-	def create_contours(self): return Contours(self)
+	def create_contours(self): 	return Contours(self)
 	def create_value(self): return Value(self)
 
 	######################################################################
