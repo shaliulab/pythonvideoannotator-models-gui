@@ -120,6 +120,12 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 	### FUNCTIONS ########################################################
 	######################################################################
 
+	def get_angle_angle_value(self, index):
+		return self.get_angle(index)
+
+	def get_angle_angularvelocity_value(self, index):
+		return self.get_angular_velocity(index)
+
 	def get_position_x_value(self, index):
 		v = self.get_position(index)
 		return v[0] if v is not None else None
@@ -375,7 +381,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		self.create_data_node('extreme points > p2 > x', 	icon=conf.ANNOTATOR_ICON_X)
 		self.create_data_node('extreme points > p2 > y', 	icon=conf.ANNOTATOR_ICON_Y)
 		
-		self.create_data_node('extreme points > angle', 	icon=conf.ANNOTATOR_ICON_ANGLE)		
+		self.create_data_node('extreme points > angle', 	icon=conf.ANNOTATOR_ICON_ANGLE)
 		
 	def get_extremepoints_p1_x_value(self, index):
 		v = self.get_extreme_points(index)
@@ -646,11 +652,14 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
 	def create_tracking_tree_nodes(self):
 		################# CONTOUR #########################################################
-		self.create_data_node('angle', icon=conf.ANNOTATOR_ICON_ANGLE)
-		self.create_data_node('area', icon=conf.ANNOTATOR_ICON_AREA)
+		self.create_data_node('area',  icon=conf.ANNOTATOR_ICON_AREA)
 		self.create_data_node('perimeter', icon=conf.ANNOTATOR_ICON_AREA)
 		
 		self.create_data_node('equivalent diameter', icon=conf.ANNOTATOR_ICON_CIRCLE)
+
+		self.create_group_node('angle', icon=conf.ANNOTATOR_ICON_ANGLE)
+		self.create_data_node('angle > angle', 				icon=conf.ANNOTATOR_ICON_POSITION)
+		self.create_data_node('angle > angular velocity', 	icon=conf.ANNOTATOR_ICON_VELOCITY)
 
 
 		self.create_group_node('position', icon=conf.ANNOTATOR_ICON_POSITION)
