@@ -9,7 +9,9 @@ from pyforms.Controls import ControlText
 from pyforms.Controls import ControlCheckBoxList
 from pythonvideoannotator.utils import tools
 from pythonvideoannotator_models_gui.models.video.objects.object2d.utils import points as pts_utils
-from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours, points_angle
+from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours
+
+from pythonvideoannotator.utils.tools import points_angle, min_dist_angles
 
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
 
@@ -55,6 +57,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		self._layers.value = [
 			('contours', True),
 			('angle', True),
+			('velocity vector', True),
 			('bounding rect', False),
 			('fit ellipse', False),
 			('extreme points', False),
@@ -90,7 +93,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		if len(self._sel_pts) == 2:
 			for i in range(self._sel_pts[0], self._sel_pts[1]+1):
 				head, tail = self.get_extreme_points(i)
-				centroid = self.get_position(i)
+				centroid   = self.get_position(i)
 				self._angles[i] = points_angle(centroid, tail)
 
 			self.mainwindow._player.refresh()
@@ -750,6 +753,12 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 			cv2.line(frame, p2, p3, 255)
 			cv2.line(frame, p3, p1, 255)
 
+	def draw_velocity_vector(self, frame, frame_index):
+		vel = self.get_velocity(frame_index)
+		p0  = self.get_position(frame_index)
+		if vel is not None and p0 is not None:
+			p1 = p0[0]-vel[0], p0[1]-vel[1]
+			cv2.line(frame, p0, p1, (255,255,0))
 
 
 
@@ -764,6 +773,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		layers = self._layers.value
 		if 'contours' in layers: 					self.draw_contour(frame, frame_index)
 		if 'angle' in layers: 						self.draw_angle(frame, frame_index)
+		if 'velocity vector' in layers: 			self.draw_velocity_vector(frame, frame_index)
 		if 'bounding rect' in layers: 				self.draw_boundingrect(frame, frame_index)
 		if 'fit ellipse' in layers: 				self.draw_fitellipse(frame, frame_index)
 		if 'extreme points' in layers: 				self.draw_extremepoints(frame, frame_index)
