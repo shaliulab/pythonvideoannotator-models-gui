@@ -30,8 +30,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		
 
 		
-		self._mark_pto_btn 	  	  = ControlButton('Mark point', checkable=True)
-		self._sel_pto_btn 	  	  = ControlButton('Select point')
+		self._mark_pto_btn 	  	  = ControlButton('&Mark point', checkable=True)
+		self._sel_pto_btn 	  	  = ControlButton('&Select point')
 		self._del_path_btn 	  	  = ControlButton('Delete path')
 		self._interpolation_title = ControlLabel('Interpolation')
 		self._interpolation_mode  = ControlCombo('Mode')
@@ -184,11 +184,11 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 			#########################################################
 			#In case 2 frames are selected, draw the temporary path##
 			#########################################################
-			self.calculate_tmp_interpolation()
-			self._interpolate_btn.show()
-			self._interpolation_mode.show()
-			self._interpolation_title.show()
-			self._del_path_btn.show()
+			if self.calculate_tmp_interpolation():
+				self._interpolate_btn.show()
+				self._interpolation_mode.show()
+				self._interpolation_title.show()
+				self._del_path_btn.show()
 			#########################################################
 		else:
 			self._interpolate_btn.hide()
@@ -220,8 +220,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 	def __interpolation_mode_changed_event(self): 
 		#store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2:
-			self.calculate_tmp_interpolation()
-			self.mainwindow._player.refresh()
+			if self.calculate_tmp_interpolation():
+				self.mainwindow._player.refresh()
 
 	def __del_path_btn_event(self): #store a temporary path for interpolation visualization
 		if len(self._sel_pts) == 2:
@@ -229,7 +229,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 											   "Are you sure you want to delete this path?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
 			if reply == QMessageBox.Yes: #store a temporary path for interpolation visualization
 				start, end = self._sel_pts[0], self._sel_pts[1]
-				self.delete_range(start+1, end)
+				self.delete_range(start, end)
 				self.calculate_tmp_interpolation()
 				self.mainwindow._player.refresh()
 		else:
@@ -274,8 +274,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 				#########################################################
 				#In case 2 frames are selected, draw the temporary path##
 				#########################################################
-				self.calculate_tmp_interpolation()
-				if self.visible:
+				res = self.calculate_tmp_interpolation()
+				if self.visible & res:
 					self._interpolate_btn.show()
 					self._interpolation_mode.show()
 					self._interpolation_title.show()
