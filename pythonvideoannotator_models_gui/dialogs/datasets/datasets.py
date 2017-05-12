@@ -85,6 +85,12 @@ class DatasetsDialog(BaseWidget):
 	@datasets_changed_event.setter
 	def datasets_changed_event(self, value): self._panel.value.datasets_changed_event = value
 	
+
+	@property
+	def objects_changed_event(self): return self._panel.value.objects_changed_event
+	@objects_changed_event.setter
+	def objects_changed_event(self, value): self._panel.value.objects_changed_event = value
+	
 	
 	
 	@property
@@ -109,13 +115,17 @@ class DatasetsDialog(BaseWidget):
 	def interval_visible(self, value): self._interval.visible = value
 
 	@property
+	def objects_filter(self): return self._panel.value.objects_filter
+	@objects_filter.setter
+	def objects_filter(self, value): self._panel.value.objects_filter = value
+
+	@property
 	def datasets_filter(self): return self._panel.value.datasets_filter
 	@datasets_filter.setter
-	def datasets_filter(self, value):
-		self._panel.value.datasets_filter = value
+	def datasets_filter(self, value): self._panel.value.datasets_filter = value
 
 
 
 
 
-if __name__ == "__main__":	 pyforms.startApp( DatasetsDialog )
+if __name__ == "__main__":	 pyforms.start_app( DatasetsDialog )

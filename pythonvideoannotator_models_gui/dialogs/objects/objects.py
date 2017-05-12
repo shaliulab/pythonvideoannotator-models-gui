@@ -9,18 +9,22 @@ from pythonvideoannotator_models.models.video.objects.object2d.datasets.path imp
 
 class ObjectsDialog(Dialog,BaseWidget):
 
-	def __init__(self, parent_win=None):
-		BaseWidget.__init__(self, 'Objects selector', parent_win=parent_win)
+	def __init__(self, parent_win=None, title='Objects selector'):
+		BaseWidget.__init__(self, title, parent_win=parent_win)
+		
+		self._objects_filter = None
 		
 		self._videos  = ControlCheckBoxList('Videos filter')
 		self._objects = ControlCheckBoxList('Objects filter')
+
+		self._videos.add_popup_menu_option('Select video', self.__selection_changed_event)
 
 		Dialog.__init__(self)
 		
 
 		self.formset  = [('_videos','||','_objects')]
 		self._videos.selection_changed_event 	= self.__selection_changed_event
-		self._videos.changed_event  			= self.__update_objects
+		self._videos.changed_event  			= self.update_objects
 		self._objects.changed_event 			= self.__objects_changed_event
 
 
@@ -50,18 +54,18 @@ class ObjectsDialog(Dialog,BaseWidget):
 	
 	def __add__(self, other):
 		if isinstance(other, Video): self._videos += (other, False)
-		if isinstance(other, VideoObject): self.__update_objects()
+		if isinstance(other, VideoObject): self.update_objects()
 		return self
 
 	def __sub__(self, other):
 		if isinstance(other, Video): 	
 			self._videos -= other
-			self.__update_objects()
-		if isinstance(other, VideoObject): self.__update_objects()
+			self.update_objects()
+		if isinstance(other, VideoObject): self.update_objects()
 		return self
 	
 	
-	def __update_objects(self):
+	def update_objects(self):
 		"""
 		Update the objects in the list
 		"""
@@ -70,14 +74,14 @@ class ObjectsDialog(Dialog,BaseWidget):
 		objects_list = []
 		for video, checked in self._videos.items:
 			for obj in video.objects:
-				if hasattr(self, '_objects_filter') and not self._objects_filter(obj): continue
-
+				if self._objects_filter and not self._objects_filter(obj): continue
+				
 				objects_list.append(obj)
 				if not checked and obj in objects:
 					self._objects -= obj
 				elif checked and obj not in objects:
 					self._objects += (obj, False)
-				
+
 		for obj in objects:
 			if obj not in objects_list: self._objects -= obj
 
@@ -88,6 +92,17 @@ class ObjectsDialog(Dialog,BaseWidget):
 
 	@property
 	def objects(self): return self._objects.value
+
+	@property
+	def selected_video(self): 
+		###########################################
+		# current mouse selected video
+		###########################################
+		index = self._videos.selected_row_index
+		if index<0: return None
+
+		video, selected = self._videos.items[index]
+		return video
 
 	@property
 	def selected_data(self):

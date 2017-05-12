@@ -11,6 +11,8 @@ from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path import Path
 from geometry_designer.modules.geometry_manual_designer.GeometryManualDesigner import GeometryManualDesigner
 
+from PyQt5.QtWidgets import QInputDialog
+
 class GeometryGUI(IModelGUI, Geometry, BaseWidget):
 
 	def __init__(self, video):
@@ -65,7 +67,16 @@ class GeometryGUI(IModelGUI, Geometry, BaseWidget):
 		for objIndex, (label, points) in enumerate(rows):		
 			cv2.polylines(frame, [np.array(points,np.int32)], True, (0,255,0), 2, lineType=cv2.LINE_AA)			
 		
-		
+	def __create_contours(self):
+		items = [x.name for x in self._video.objects2D]
+		item = QInputDialog.getItem(self, "Select the object to add a contour", "Object", items, editable=False)
+		try:
+			index = items.index(item[0])
+			self.create_contours(list(self._video.objects2D)[index])
+		except ValueError:
+			pass
+
+
 	######################################################################
 	### CLASS FUNCTIONS ##################################################
 	######################################################################
@@ -73,6 +84,12 @@ class GeometryGUI(IModelGUI, Geometry, BaseWidget):
 	def create_tree_nodes(self):
 		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_PICTURE, parent=self.video.treenode)
 		self.treenode.win = self
+
+		self.tree.add_popup_menu_option(
+			label='Create contours from the geometry', 
+			function_action=self.__create_contours, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_CONTOUR
+		)
 
 		self.tree.add_popup_menu_option(
 			label='Remove', 
