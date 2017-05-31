@@ -58,7 +58,7 @@ class ValueGUI(DatasetGUI, Value, BaseWidget):
 	def create_popupmenu_actions(self):
 
 		fullname = self.name
-		action = tools.make_lambda_func(self.send_2_timeline_event, graph_name=fullname, data_func=self.get_value )
+		action = tools.make_lambda_func(self.send_2_timeline_event, tree_item=self.treenode, data_func=self.get_value )
 		self.tree.add_popup_menu_option(
 			label='View on the timeline', 
 			function_action=action ,

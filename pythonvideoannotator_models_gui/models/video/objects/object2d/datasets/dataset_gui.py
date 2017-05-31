@@ -77,7 +77,7 @@ class DatasetGUI(IModelGUI):
 			data_func = getattr(self, data_func_name )
 			child_node.data_function = data_func
 
-			action = tools.make_lambda_func(self.send_2_timeline_event, graph_name=fullname, data_func=data_func )
+			action = tools.make_lambda_func(self.send_2_timeline_event, tree_item=child_node, data_func=data_func )
 			self.tree.add_popup_menu_option(
 				label='View on the timeline', 
 				function_action=action ,
@@ -93,7 +93,7 @@ class DatasetGUI(IModelGUI):
 				icon=conf.PYFORMS_ICON_EVENTTIMELINE_EXPORT
 			)
 
-			action = tools.make_lambda_func(self.__create_new_value_event, property_name=fullname, data_func=data_func )
+			action = tools.make_lambda_func(self.__create_new_value_event, tree_item=child_node, data_func=data_func )
 			self.tree.add_popup_menu_option(
 				label='Use this property to create a new value', 
 				function_action=action ,
@@ -108,19 +108,19 @@ class DatasetGUI(IModelGUI):
 	### GUI EVENTS #######################################################
 	######################################################################
 
-	def __create_new_value_event(self, property_name, data_func):
+	def __create_new_value_event(self, tree_item, data_func):
 		values = self.object2d.create_value()
-		values.name = property_name
+		values.name = str(tree_item.text(0))
 		for i in range(len(self)):
 			v = data_func(i)
 			if v is not None: values.set_value(i, v)
 		
-	def send_2_timeline_event(self, graph_name, data_func):
+	def send_2_timeline_event(self, tree_item, data_func):
 		data = []
 		for i in range(len(self)):
 			v = data_func(i)
 			if v is not None: data.append( (i,v) )
-		self.mainwindow.add_graph(graph_name, data)
+		self.mainwindow.add_graph(str(tree_item.text(0)), data)
 
 	def export_2_csvfile_event(self, data_func):
 		filename, ffilter = QFileDialog.getSaveFileName(parent=self,
