@@ -123,12 +123,11 @@ class DatasetGUI(IModelGUI):
 		self.mainwindow.add_graph(graph_name, data)
 
 	def export_2_csvfile_event(self, data_func):
-		filename, ffilter = QFileDialog.getSaveFileNameAndFilter(parent=self,
+		filename, ffilter = QFileDialog.getSaveFileName(parent=self,
 													 caption="Export data",
 													 directory="untitled.csv",
-													 filter="CSV Files (*.csv)",
-													 options=QFileDialog.DontUseNativeDialog)
-		if filename is not None:
+													 filter="CSV Files (*.csv)")
+		if filename is not None and len(filename.strip())>0:
 			filename = str(filename)
 			with open(filename, 'w') as outfile:
 				for i in range(len(self)):
