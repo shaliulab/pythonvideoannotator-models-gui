@@ -82,7 +82,7 @@ class GeometryGUI(IModelGUI, Geometry, BaseWidget):
 	######################################################################
 
 	def create_tree_nodes(self):
-		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_PICTURE, parent=self.video.treenode)
+		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_CONTOUR, parent=self.video.treenode)
 		self.treenode.win = self
 
 		self.tree.add_popup_menu_option(

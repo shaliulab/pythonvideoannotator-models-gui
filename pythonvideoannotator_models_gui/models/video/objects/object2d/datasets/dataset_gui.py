@@ -4,11 +4,12 @@ from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models_gui.dialogs import Dialog
 from pythonvideoannotator.utils import tools
 
-if conf.PYFORMS_USE_QT5:
-	from PyQt5 import QtGui
 
-else:	
-	from PyQt4 import QtGui
+if conf.PYFORMS_USE_QT5:
+	from PyQt5.QtWidgets import QFileDialog
+
+else:
+	from PyQt4.QtGui import QFileDialog
 
 
 class DatasetGUI(IModelGUI):
@@ -122,11 +123,11 @@ class DatasetGUI(IModelGUI):
 		self.mainwindow.add_graph(graph_name, data)
 
 	def export_2_csvfile_event(self, data_func):
-		filename, ffilter = QtGui.QFileDialog.getSaveFileNameAndFilter(parent=self,
+		filename, ffilter = QFileDialog.getSaveFileNameAndFilter(parent=self,
 													 caption="Export data",
 													 directory="untitled.csv",
 													 filter="CSV Files (*.csv)",
-													 options=QtGui.QFileDialog.DontUseNativeDialog)
+													 options=QFileDialog.DontUseNativeDialog)
 		if filename is not None:
 			filename = str(filename)
 			with open(filename, 'w') as outfile:

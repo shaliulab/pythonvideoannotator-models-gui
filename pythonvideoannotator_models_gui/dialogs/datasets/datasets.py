@@ -95,6 +95,10 @@ class DatasetsDialog(BaseWidget):
 	
 	@property
 	def selected_video(self): 		return self._panel.value.selected_video
+
+	@property
+	def selected_video_range(self): return self._intervals.value
+
 	
 	@property
 	def selected_data(self):

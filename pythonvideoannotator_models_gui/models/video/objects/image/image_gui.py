@@ -54,7 +54,9 @@ class ImageGUI(IModelGUI, Image, BaseWidget):
 	def create_tree_nodes(self):
 		self.treenode = self.tree.create_child(self.name, icon=conf.ANNOTATOR_ICON_PICTURE, parent=self.video.treenode)
 		self.treenode.win = self
+		self.create_popupmenu_actions()
 
+	def create_popupmenu_actions(self):
 		self.tree.add_popup_menu_option(
 			label='Remove', 
 			function_action=self.__remove_image_event, 

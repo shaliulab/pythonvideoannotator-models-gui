@@ -104,6 +104,8 @@ class ObjectsDialog(Dialog,BaseWidget):
 		video, selected = self._videos.items[index]
 		return video
 
+	
+
 	@property
 	def selected_data(self):
 		videos 	= self._videos.value

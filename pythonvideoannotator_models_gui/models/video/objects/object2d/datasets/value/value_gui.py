@@ -65,6 +65,7 @@ class ValueGUI(DatasetGUI, Value, BaseWidget):
 			item=self.treenode,
 			icon=conf.ANNOTATOR_ICON_TIMELINE
 		)
+		
 		action = tools.make_lambda_func(self.export_2_csvfile_event, data_func=self.get_value )
 		self.tree.add_popup_menu_option(
 			label='Export to file',
