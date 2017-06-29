@@ -5,6 +5,7 @@ from pyforms.Controls import ControlButton
 from pyforms.Controls import ControlCombo
 from pyforms.Controls import ControlLabel
 from pyforms.Controls import ControlText
+from pyforms.Controls import ControlCheckBox
 from pythonvideoannotator.utils import tools
 
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
@@ -33,6 +34,9 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		self._mark_pto_btn 	  	  = ControlButton('&Mark point', checkable=True)
 		self._sel_pto_btn 	  	  = ControlButton('&Select point')
 		self._del_path_btn 	  	  = ControlButton('Delete path')
+		self._use_reference 	  = ControlCheckBox('Subtract a reference point')
+		self._reference_pt 		  = ControlText('Reference point')
+
 		self._interpolation_title = ControlLabel('Interpolation')
 		self._interpolation_mode  = ControlCombo('Mode')
 		self._interpolate_btn 	  = ControlButton('Apply')
@@ -40,6 +44,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 
 		self._formset = [ 
 			'_name',
+			'_use_reference', 
+			'_reference_pt',
 			('_mark_pto_btn','_sel_pto_btn'),
 			'_del_path_btn',
 			'_interpolation_title',
@@ -60,6 +66,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		self._interpolate_btn.hide()
 		self._interpolation_mode.hide()
 		self._interpolation_title.hide()
+		self._reference_pt.hide()
 
 		self._del_path_btn.icon = conf.ANNOTATOR_ICON_DELETEPATH
 		self._interpolate_btn.icon = conf.ANNOTATOR_ICON_INTERPOLATE
@@ -68,16 +75,26 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		self._remove_btn.icon = conf.ANNOTATOR_ICON_REMOVE
 
 		#### set events #################################################
-		self._del_path_btn.value 		 = self.__del_path_btn_event
+		self._del_path_btn.value 		 =  self.__del_path_btn_event
 		self._interpolation_mode.changed_event = self.__interpolation_mode_changed_event
-		self._interpolate_btn.value 	 = self.__interpolate_btn_event
-		self._sel_pto_btn.value			 = self.__sel_pto_btn_event
-		self._remove_btn.value			 = self.__remove_path_dataset
+		self._interpolate_btn.value 	 =  self.__interpolate_btn_event
+		self._sel_pto_btn.value			 =  self.__sel_pto_btn_event
+		self._remove_btn.value			 =  self.__remove_path_dataset
+		self._use_reference.changed_event = self.__use_reference_changed_event
+		self._reference_pt.changed_event = self.__reference_pt_changed_event
 
 
 	######################################################################
 	### FUNCTIONS ########################################################
 	######################################################################
+
+	def show(self):
+		super(PathGUI, self).show()
+		if self._reference: 
+			self._reference_pt.value = str(self.reference)[1:-1]
+			self._use_reference.value = True
+		else:
+			self._use_reference.value = False
 
 	def get_velocity(self, index):
 		p1 = self.get_position(index)
@@ -205,6 +222,27 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		if item is not None: self.object2d -= item.win
 
 
+	def __use_reference_changed_event(self):
+		if self._use_reference.value:
+			if self._reference is None: 
+				try:
+					self._reference = eval(self._reference_pt.value)
+				except:
+					self._reference_pt.value = '0,0'
+			else:
+				self._reference_pt.value = str(self._reference)[1:-1]
+			self._reference_pt.show()
+		else:
+			self._reference_pt.hide()
+			self._reference = None
+
+	def __reference_pt_changed_event(self):
+		try:
+			self._reference = eval(self._reference_pt.value)
+		except:
+			self._reference_pt.value = '0,0'
+			self._reference = 0,0
+
 
 	####################################################################
 
@@ -315,3 +353,5 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 	def interpolation_mode(self): return None if self._interpolation_mode.value==-1 else self._interpolation_mode.value
 
 
+
+		
