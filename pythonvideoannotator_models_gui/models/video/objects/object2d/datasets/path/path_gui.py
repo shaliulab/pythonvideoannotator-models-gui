@@ -34,8 +34,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		self._mark_pto_btn 	  	  = ControlButton('&Mark point', checkable=True)
 		self._sel_pto_btn 	  	  = ControlButton('&Select point')
 		self._del_path_btn 	  	  = ControlButton('Delete path')
-		self._use_reference 	  = ControlCheckBox('Subtract a reference point')
-		self._reference_pt 		  = ControlText('Reference point')
+		self._use_referencial 	  = ControlCheckBox('Apply')
+		self._referencial_pt 	  = ControlText('Referencial')
 
 		self._interpolation_title = ControlLabel('Interpolation')
 		self._interpolation_mode  = ControlCombo('Mode')
@@ -44,8 +44,9 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 
 		self._formset = [ 
 			'_name',
-			'_use_reference', 
-			'_reference_pt',
+			' ',
+			('_referencial_pt','_use_referencial'), 			
+			' ',
 			('_mark_pto_btn','_sel_pto_btn'),
 			'_del_path_btn',
 			'_interpolation_title',
@@ -66,7 +67,6 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		self._interpolate_btn.hide()
 		self._interpolation_mode.hide()
 		self._interpolation_title.hide()
-		self._reference_pt.hide()
 
 		self._del_path_btn.icon = conf.ANNOTATOR_ICON_DELETEPATH
 		self._interpolate_btn.icon = conf.ANNOTATOR_ICON_INTERPOLATE
@@ -80,21 +80,14 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		self._interpolate_btn.value 	 =  self.__interpolate_btn_event
 		self._sel_pto_btn.value			 =  self.__sel_pto_btn_event
 		self._remove_btn.value			 =  self.__remove_path_dataset
-		self._use_reference.changed_event = self.__use_reference_changed_event
-		self._reference_pt.changed_event = self.__reference_pt_changed_event
+		
+		self._referencial_pt.changed_event  = self.__referencial_pt_changed_event
 
 
 	######################################################################
 	### FUNCTIONS ########################################################
 	######################################################################
 
-	def show(self):
-		super(PathGUI, self).show()
-		if self._reference: 
-			self._reference_pt.value = str(self.reference)[1:-1]
-			self._use_reference.value = True
-		else:
-			self._use_reference.value = False
 
 	def get_velocity(self, index):
 		p1 = self.get_position(index)
@@ -151,6 +144,12 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 	######################################################################
 
 	def create_popupmenu_actions(self):
+		self.tree.add_popup_menu_option(
+			label='Duplicate', 
+			function_action=self.clone_path, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_DUPLICATE
+		)
+
 		self.tree.add_popup_menu_option(
 			label='Remove', 
 			function_action=self.__remove_path_dataset, 
@@ -222,26 +221,11 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 		if item is not None: self.object2d -= item.win
 
 
-	def __use_reference_changed_event(self):
-		if self._use_reference.value:
-			if self._reference is None: 
-				try:
-					self._reference = eval(self._reference_pt.value)
-				except:
-					self._reference_pt.value = '0,0'
-			else:
-				self._reference_pt.value = str(self._reference)[1:-1]
-			self._reference_pt.show()
-		else:
-			self._reference_pt.hide()
-			self._reference = None
-
-	def __reference_pt_changed_event(self):
+	def __referencial_pt_changed_event(self):
 		try:
-			self._reference = eval(self._reference_pt.value)
+			self._referencial = eval(self._referencial_pt.value)
 		except:
-			self._reference_pt.value = '0,0'
-			self._reference = 0,0
+			self._referencial = None
 
 
 	####################################################################
@@ -333,8 +317,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 
 	
 		
-	def draw(self, frame, frame_index): 
-		Path.draw(self, frame, frame_index)
+	def draw(self, frame, frame_index): Path.draw(self, frame, frame_index)
+
 	######################################################################
 	### PROPERTIES #######################################################
 	######################################################################
@@ -352,6 +336,22 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 	@property
 	def interpolation_mode(self): return None if self._interpolation_mode.value==-1 else self._interpolation_mode.value
 
+
+	@property
+	def referencial(self): 
+		return Path.referencial.fget(self)
+
+	@referencial.setter
+	def referencial(self, value):
+		self._referencial_pt.value = str(value)[1:-1] if value else ''
+
+	@property
+	def apply_referencial(self):  
+		return self._use_referencial.value
+
+	@apply_referencial.setter
+	def apply_referencial(self, value): 
+		self._use_referencial.value = value
 
 
 		
