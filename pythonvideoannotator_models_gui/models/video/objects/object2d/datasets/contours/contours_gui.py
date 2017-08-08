@@ -440,11 +440,11 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
 	def get_fitellipse_majoraxissize_value(self, index):
 		v = self.get_fit_ellipse(index)
-		return v[1][0] if v is not None else None
+		return v[1][1] if v is not None else None
 
 	def get_fitellipse_minoraxissize_value(self, index):
 		v = self.get_fit_ellipse(index)
-		return v[1][1] if v is not None else None
+		return v[1][0] if v is not None else None
 
 	def get_fitellipse_angle_value(self, index):
 		v = self.get_fit_ellipse(index)
@@ -734,7 +734,11 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 		cv2.polylines(frame, np.array( [hull] ), True, (0,0,255), 1)
 
 	def draw_rotatedrectangle(self, frame, frame_index):
-		pass
+		
+		rect = self.get_rotatedrectangle(frame_index)
+		box = cv2.boxPoints(rect)
+		box = np.int0(box)
+		cv2.drawContours(frame,[box],0,(0,191,255),1)
 
 	def draw_minimumenclosingcircle(self, frame, frame_index):
 		circle = self.get_minimumenclosingcircle(frame_index)
