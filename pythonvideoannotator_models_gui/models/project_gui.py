@@ -101,7 +101,8 @@ class ProjectGUI(IModelGUI, Project, BaseWidget):
 	def load(self, data, project_path=None):
 		super(ProjectGUI, self).load(data, project_path)
 		timeline_path = os.path.join(project_path, 'timeline.csv')
-		self.mainwindow.timeline.import_csv_file(timeline_path)
+		if os.path.isfile(timeline_path):
+			self.mainwindow.timeline.import_csv_file(timeline_path)
 		return data
 		
 	######################################################################################

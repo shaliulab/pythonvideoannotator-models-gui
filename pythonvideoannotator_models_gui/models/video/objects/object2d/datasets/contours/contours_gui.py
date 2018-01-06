@@ -11,7 +11,7 @@ from pythonvideoannotator.utils import tools
 from pythonvideoannotator_models_gui.models.video.objects.object2d.utils import points as pts_utils
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.contours import Contours
 
-from pythonvideoannotator.utils.tools import points_angle, min_dist_angles
+from pythonvideoannotator_models.utils.tools import points_angle, min_dist_angles
 
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
 

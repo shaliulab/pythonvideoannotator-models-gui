@@ -73,8 +73,11 @@ class VideosDialog(BaseWidget):
 	@property
 	def interval_visible(self): return self._interval.visible
 	@interval_visible.setter
-	def interval_visible(self, value): self._interval.visible = value
-
+	def interval_visible(self, value):
+		if value:
+			self._interval.show()
+		else:
+			self._interval.hide()
 	
 
 	@property

@@ -264,7 +264,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 	######################################################################
 
 	def on_click(self, event, x, y):
-		if event.button() == 1:
+		if event.button== 1:
 			frame_index = self.mainwindow._player.video_index-1
 
 			if self._mark_pto_btn.checked:
