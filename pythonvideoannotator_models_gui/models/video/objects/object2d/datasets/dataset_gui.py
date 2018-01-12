@@ -1,15 +1,11 @@
-import json
+import json, AnyQt
 from pysettings import conf
 from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models_gui.dialogs import Dialog
 from pythonvideoannotator.utils import tools
 
-
-if conf.PYFORMS_USE_QT5:
-	from PyQt5.QtWidgets import QFileDialog
-
-else:
-	from PyQt4.QtGui import QFileDialog
+if conf.PYFORMS_MODE=='GUI':
+	from AnyQt.QtWidgets import QFileDialog
 
 
 class DatasetGUI(IModelGUI):

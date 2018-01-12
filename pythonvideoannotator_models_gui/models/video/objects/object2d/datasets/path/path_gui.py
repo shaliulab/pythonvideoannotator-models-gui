@@ -1,4 +1,4 @@
-import math, cv2, numpy as np
+import math, cv2, numpy as np, AnyQt
 from pysettings import conf
 from pyforms import BaseWidget
 from pyforms.Controls import ControlButton
@@ -11,13 +11,10 @@ from pythonvideoannotator.utils import tools
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
 
-if conf.PYFORMS_USE_QT5:
-	from PyQt5 import QtCore
-	from PyQt5.QtWidgets import QMessageBox
-else:	
-	from PyQt4 import QtCore
-	from PyQt5.QtGui import QMessageBox
-
+if conf.PYFORMS_MODE=='GUI':
+	from AnyQt import QtCore
+	from AnyQt.QtWidgets import QMessageBox
+	
 
 
 class PathGUI(DatasetGUI, Path, BaseWidget):

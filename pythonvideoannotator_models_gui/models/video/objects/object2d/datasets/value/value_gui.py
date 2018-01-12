@@ -1,4 +1,4 @@
-import math
+import math, AnyQt
 from pysettings import conf
 from pyforms import BaseWidget
 from pyforms.Controls import ControlButton
@@ -11,13 +11,8 @@ from pythonvideoannotator_models.models.video.objects.object2d.datasets.value im
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
 
 
-if conf.PYFORMS_USE_QT5:
-	from PyQt5 import QtGui
-
-else:	
-	from PyQt4 import QtGui
-
-
+if conf.PYFORMS_MODE=='GUI':
+	from AnyQt.QtWidgets import QMessageBox
 
 class ValueGUI(DatasetGUI, Value, BaseWidget):
 
@@ -53,7 +48,7 @@ class ValueGUI(DatasetGUI, Value, BaseWidget):
 				self._values[i-1] = b-a
 			else:
 				self._values[i-1] = 0
-		QtGui.QMessageBox.about(self, "Info", "Operation complete.")
+		QMessageBox.about(self, "Info", "Operation complete.")
 
 	def create_popupmenu_actions(self):
 

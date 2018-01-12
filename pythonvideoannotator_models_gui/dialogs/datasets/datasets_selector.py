@@ -19,6 +19,8 @@ class DatasetsSelectorDialog(ObjectsDialog):
         self._objects.changed_event  = self.__update_datasets
         self._datasets.changed_event = self.__datasets_changed_event
 
+        self.load_order = ['_videos', '_objects', '_datasets']
+
         #for video in conf.PROJECT.videos: self += video
 
     #####################################################################
@@ -51,21 +53,8 @@ class DatasetsSelectorDialog(ObjectsDialog):
                 data[name] = {}
                 param.save_form(data[name])
         return data
-
-    def load_form(self, data, path=None):
-        allparams = self.controls
-
-        if hasattr(self, 'load_order'):
-            for name in self.load_order:
-                param = allparams[name]
-                if name in data:
-                    param.load_form(data[name])
-        else:
-            for name, param in allparams.items():
-                if name in data:
-                    param.load_form(data[name])
     """
-
+  
     # used to update automaticly the name of the videos, objects and paths
     def refresh(self):
         ObjectsDialog.refresh(self)

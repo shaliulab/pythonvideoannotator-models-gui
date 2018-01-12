@@ -1,4 +1,4 @@
-import csv, cv2, os, numpy as np
+import csv, cv2, os, numpy as np, AnyQt
 from pysettings import conf
 from pyforms import BaseWidget
 from pyforms.Controls import ControlButton
@@ -11,7 +11,8 @@ from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path import Path
 from geometry_designer.modules.geometry_manual_designer.GeometryManualDesigner import GeometryManualDesigner
 
-from PyQt5.QtWidgets import QInputDialog
+if conf.PYFORMS_MODE=='GUI':
+	from AnyQt.QtWidgets import QInputDialog
 
 class GeometryGUI(IModelGUI, Geometry, BaseWidget):
 

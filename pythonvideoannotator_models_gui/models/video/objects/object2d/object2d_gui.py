@@ -13,6 +13,9 @@ from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.contours import Contours
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.value import Value
 
+if conf.PYFORMS_MODE=='GUI':
+	from AnyQt.QtWidgets import QInputDialog
+
 class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 
 	def __init__(self, video):
@@ -85,7 +88,13 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 			item=self.treenode, icon=conf.ANNOTATOR_ICON_INFO
 		)
 
-		
+		self.tree.add_popup_menu_option(
+			label='Import value from timeline', 
+			function_action=self.__import_value_from_timeline, 
+			item=self.treenode, icon=conf.ANNOTATOR_ICON_INFO
+		)
+
+		self.tree.add_popup_menu_option('-',item=self.treenode)
 		self.tree.add_popup_menu_option('-', item=self.treenode)
 		self.tree.add_popup_menu_option(
 			label='Remove', 
@@ -104,6 +113,24 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 	######################################################################
 	### EVENTS ###########################################################
 	######################################################################
+
+	def __import_value_from_timeline(self):
+		timeline = self.mainwindow._time
+		graphs = timeline.graphs
+
+		item, ok = QInputDialog.getItem(self, 
+			"Select the value to import", 'Value', 
+			[str(graph) for graph in graphs], 
+			editable=False
+		)
+		if ok:
+			for graph in graphs:
+				if str(item)==str(graph):
+					v = self.create_value()
+					v.name = graph.name
+					for i in range(len(graph)):
+						v.set_value(i, graph[i])
+
 
 	def on_click(self, event, x, y):
 		for dataset in self.datasets: dataset.on_click(event, x, y)
