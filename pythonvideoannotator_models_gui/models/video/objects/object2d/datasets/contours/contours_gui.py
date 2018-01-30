@@ -761,7 +761,6 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
         ellipse = self.get_fit_ellipse(frame_index)
         if ellipse is None: return None
         (x,y),(MA,ma),angle = ellipse
-        (x,y),(MA,ma),angle = (x,y),(MA,ma),angle
         cv2.ellipse(frame,(int(round(x)),int(round(y)) ),( int(round(MA)), int(round(ma)) ) ,int(round(angle)),0,360,(0,0,255), 1)
 
     def draw_extremepoints(self, frame, frame_index):
