@@ -1,4 +1,4 @@
-from pyforms.Controls import ControlText
+from pyforms.controls import ControlText
 from pythonvideoannotator_models_gui.dialogs import Dialog
 
 class IModelGUI(object):

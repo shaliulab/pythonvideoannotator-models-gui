@@ -1,6 +1,6 @@
 import pyforms
 from pyforms import BaseWidget
-from pyforms.Controls import ControlCheckBoxList
+from pyforms.controls import ControlCheckBoxList
 from pythonvideoannotator_models.models.video import Video
 from pythonvideoannotator_models_gui.dialogs.dialog import Dialog
 

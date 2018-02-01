@@ -1,8 +1,8 @@
 import pyforms
 from pyforms import BaseWidget
-from pyforms.Controls import ControlBoundingSlider
-from pyforms.Controls import ControlEmptyWidget
-from pyforms.Controls import ControlButton
+from pyforms.controls import ControlBoundingSlider
+from pyforms.controls import ControlEmptyWidget
+from pyforms.controls import ControlButton
 from pythonvideoannotator_models_gui.dialogs.datasets.datasets_selector import DatasetsSelectorDialog
 
 class DatasetsDialog(BaseWidget):

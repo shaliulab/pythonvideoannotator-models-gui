@@ -3,10 +3,10 @@
 import os
 from pysettings import conf
 from pyforms import BaseWidget
-from pyforms.Controls import ControlButton
-from pyforms.Controls import ControlTree
-from pyforms.Controls import ControlList
-from pyforms.Controls import ControlEmptyWidget
+from pyforms.controls import ControlButton
+from pyforms.controls import ControlTree
+from pyforms.controls import ControlList
+from pyforms.controls import ControlEmptyWidget
 from pyforms.dialogs  import CsvParserDialog
 
 from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI

@@ -3,10 +3,10 @@
 import os, cv2
 from pysettings import conf
 from pyforms import BaseWidget
-from pyforms.Controls import ControlText
-from pyforms.Controls import ControlFile
-from pyforms.Controls import ControlButton
-from pyforms.Controls import ControlLabel
+from pyforms.controls import ControlText
+from pyforms.controls import ControlFile
+from pyforms.controls import ControlButton
+from pyforms.controls import ControlLabel
 
 
 from pythonvideoannotator_models.models.video.objects.video_object import VideoObject

@@ -1,11 +1,11 @@
 import math, cv2, numpy as np, AnyQt
 from pysettings import conf
 from pyforms import BaseWidget
-from pyforms.Controls import ControlButton
-from pyforms.Controls import ControlCombo
-from pyforms.Controls import ControlLabel
-from pyforms.Controls import ControlText
-from pyforms.Controls import ControlCheckBox
+from pyforms.controls import ControlButton
+from pyforms.controls import ControlCombo
+from pyforms.controls import ControlLabel
+from pyforms.controls import ControlText
+from pyforms.controls import ControlCheckBox
 from pythonvideoannotator.utils import tools
 
 from pythonvideoannotator_models.models.video.objects.object2d.datasets.path import Path
