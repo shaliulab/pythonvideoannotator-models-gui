@@ -1,5 +1,5 @@
 import math, cv2, numpy as np, AnyQt
-from pysettings import conf
+from pyforms import conf
 from pyforms import BaseWidget
 from pyforms.controls import ControlButton
 from pyforms.controls import ControlCombo
@@ -271,7 +271,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
 				position = self.get_position(frame_index)
 				if position is not None and self.__lin_dist(position, (x,y))<10:
 
-					modifier = int(event.modifiers())
+					modifier = int(event.event.modifiers())
 
 					# If the control button is pressed will add the blob to the previous selections
 					if modifier == QtCore.Qt.ControlModifier:

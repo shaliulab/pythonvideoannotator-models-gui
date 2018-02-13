@@ -1,5 +1,5 @@
 import math, cv2, numpy as np
-from pysettings import conf
+from pyforms import conf
 from pyforms import BaseWidget
 from pyforms.controls import ControlButton
 from pyforms.controls import ControlCombo

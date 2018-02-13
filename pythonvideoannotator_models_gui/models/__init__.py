@@ -1,4 +1,4 @@
-from pysettings import conf
+from pyforms import conf
 from pythonvideoannotator_models_gui.models.project_gui import ProjectGUI
 
 Project = type(

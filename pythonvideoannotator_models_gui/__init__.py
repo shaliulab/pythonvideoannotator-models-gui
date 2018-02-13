@@ -1,1 +1,1 @@
-from pysettings import conf; conf += 'pythonvideoannotator_models_gui.settings'
+from pyforms import conf; conf += 'pythonvideoannotator_models_gui.settings'

@@ -1,4 +1,4 @@
-from pysettings import conf
+from pyforms import conf
 from pythonvideoannotator_models_gui.models.video.objects.geometry.geometry_gui import GeometryGUI
 
 Geometry = type(

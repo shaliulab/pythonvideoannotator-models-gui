@@ -1,5 +1,5 @@
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.value.value_gui import ValueGUI
-from pysettings import conf
+from pyforms import conf
 
 
 Value = type(

@@ -1,5 +1,5 @@
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.path.path_gui import PathGUI
-from pysettings import conf
+from pyforms import conf
 
 
 Path = type(
