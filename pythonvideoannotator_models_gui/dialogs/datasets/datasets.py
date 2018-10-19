@@ -1,5 +1,5 @@
 import pyforms
-from pyforms import BaseWidget
+from pyforms.basewidget import BaseWidget
 from pyforms.controls import ControlBoundingSlider
 from pyforms.controls import ControlEmptyWidget
 from pyforms.controls import ControlButton

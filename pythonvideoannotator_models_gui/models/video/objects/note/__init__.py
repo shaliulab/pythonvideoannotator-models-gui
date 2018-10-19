@@ -1,4 +1,4 @@
-from pyforms import conf
+from confapp import conf
 from pythonvideoannotator_models_gui.models.video.objects.note.note_gui import NoteGUI
 
 Note = type(

@@ -1,8 +1,8 @@
 #! /usr/bin/python2
 # -*- coding: utf-8 -*-
 import os
-from pyforms import conf
-from pyforms import BaseWidget
+from confapp import conf
+from pyforms.basewidget import BaseWidget
 from pyforms.controls import ControlButton
 from pyforms.controls import ControlTree
 from pyforms.controls import ControlList

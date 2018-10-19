@@ -1,5 +1,5 @@
 import pyforms
-from pyforms import BaseWidget
+from pyforms.basewidget import BaseWidget
 from pyforms.controls import ControlCheckBoxList
 from pythonvideoannotator_models.models.video import Video
 from pythonvideoannotator_models.models.video.objects.video_object import VideoObject

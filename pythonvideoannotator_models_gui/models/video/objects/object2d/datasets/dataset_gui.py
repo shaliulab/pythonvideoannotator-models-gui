@@ -1,5 +1,5 @@
 import json, AnyQt
-from pyforms import conf
+from confapp import conf
 from pythonvideoannotator_models_gui.models.imodel_gui import IModelGUI
 from pythonvideoannotator_models_gui.dialogs import Dialog
 from pythonvideoannotator.utils import tools
