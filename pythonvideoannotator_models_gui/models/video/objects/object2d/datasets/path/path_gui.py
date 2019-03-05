@@ -51,7 +51,6 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
             ' '
         ]
 
-
         #### set controls ##############################################
         self._interpolation_mode.add_item("Auto", -1)
         self._interpolation_mode.add_item("Linear", 'slinear')
@@ -167,10 +166,11 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
         
         self.mainwindow._player.refresh()
 
-        if len(self._sel_pts)==2:
-            self._del_path_btn.show()
-        else:
-            self._del_path_btn.hide()
+        if self.visible:
+            if len(self._sel_pts)==2:
+                self._del_path_btn.show()
+            else:
+                self._del_path_btn.hide()
 
     def __sel_pto_btn_event(self):
         video_index = self.mainwindow._player.video_index-1
@@ -185,27 +185,28 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
             self._sel_pts.append(video_index)
             self._sel_pts = sorted(self._sel_pts)
 
-        #store a temporary path for interpolation visualization
-        if len(self._sel_pts) >= 2: 
-            #########################################################
-            #In case 2 frames are selected, draw the temporary path##
-            #########################################################
-            if self.calculate_tmp_interpolation():
-                self._interpolate_btn.show()
-                self._interpolation_mode.show()
-                self._interpolation_title.show()
-                
-                if len(self._sel_pts)==2:
-                    self._del_path_btn.show()
-                else:
-                    self._del_path_btn.hide()
-            #########################################################
-        else:
-            self._interpolate_btn.hide()
-            self._interpolation_mode.hide()
-            self._interpolation_title.hide()
-            self._del_path_btn.hide()
-            self._tmp_points = []
+        if self.visible:
+            #store a temporary path for interpolation visualization
+            if len(self._sel_pts) >= 2:
+                #########################################################
+                #In case 2 frames are selected, draw the temporary path##
+                #########################################################
+                if self.calculate_tmp_interpolation():
+                    self._interpolate_btn.show()
+                    self._interpolation_mode.show()
+                    self._interpolation_title.show()
+
+                    if len(self._sel_pts)==2:
+                        self._del_path_btn.show()
+                    else:
+                        self._del_path_btn.hide()
+                #########################################################
+            else:
+                self._interpolate_btn.hide()
+                self._interpolation_mode.hide()
+                self._interpolation_title.hide()
+                self._del_path_btn.hide()
+                self._tmp_points = []
 
         self.mainwindow._player.refresh()
 
@@ -285,27 +286,28 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
                     self._sel_pts =[]  # No object selected: remove previous selections #store a temporary path for interpolation visualization
                 self._sel_pts = sorted(self._sel_pts)
 
-            #store a temporary path for interpolation visualization
-            if len(self._sel_pts) >= 2: 
-                #########################################################
-                #In case 2 frames are selected, draw the temporary path##
-                #########################################################
-                res = self.calculate_tmp_interpolation()
-                if self.visible & res:
-                    self._interpolate_btn.show()
-                    self._interpolation_mode.show()
-                    self._interpolation_title.show()
-                    self._del_path_btn.show()
-                    #self._sel_pto_btn.hide()
-                #########################################################
-            else:
-                if self.visible:
-                    self._interpolate_btn.hide()
-                    self._interpolation_mode.hide()
-                    self._interpolation_title.hide()
-                    self._del_path_btn.hide()
-                self._tmp_points = []
-                
+            if self.visible:
+                #store a temporary path for interpolation visualization
+                if len(self._sel_pts) >= 2:
+                    #########################################################
+                    #In case 2 frames are selected, draw the temporary path##
+                    #########################################################
+                    res = self.calculate_tmp_interpolation()
+                    if self.visible & res:
+                        self._interpolate_btn.show()
+                        self._interpolation_mode.show()
+                        self._interpolation_title.show()
+                        self._del_path_btn.show()
+                        #self._sel_pto_btn.hide()
+                    #########################################################
+                else:
+                    if self.visible:
+                        self._interpolate_btn.hide()
+                        self._interpolation_mode.hide()
+                        self._interpolation_title.hide()
+                        self._del_path_btn.hide()
+                    self._tmp_points = []
+
             
             self.mainwindow._player.refresh()
 
@@ -313,7 +315,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
         
     def draw(self, frame, frame_index):
 
-        if not self.mainwindow.player.is_playing:
+        if not self.mainwindow.player.is_playing and self.visible:
 
             if self[frame_index] is None:
                 self._del_point_btn.hide()
