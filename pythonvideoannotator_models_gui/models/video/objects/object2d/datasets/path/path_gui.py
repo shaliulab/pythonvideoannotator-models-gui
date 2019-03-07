@@ -38,16 +38,20 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
         self._interpolate_btn     = ControlButton('Apply',         default=self.__interpolate_btn_event, icon=conf.ANNOTATOR_ICON_INTERPOLATE, visible=False)
         self._remove_btn          = ControlButton('Remove dataset',default=self.__remove_path_dataset, icon=conf.ANNOTATOR_ICON_REMOVE)
 
+        self._show_object_name = ControlCheckBox('Show object name', default=False)
+        self._show_name = ControlCheckBox('Show name', default=False)
+
         self._formset = [ 
             '_name',
-            ('_referencial_pt','_use_referencial'),
+            ('_show_name', '_show_object_name'),
+            ('_referencial_pt', '_use_referencial'),
             '_remove_btn',            
             ' ',
-            ('_mark_pto_btn','_sel_pto_btn'),
+            ('_mark_pto_btn', '_sel_pto_btn'),
             '_del_path_btn',
             '_del_point_btn',
             '_interpolation_title',
-            ('_interpolation_mode','_interpolate_btn'),
+            ('_interpolation_mode', '_interpolate_btn'),
             ' '
         ]
 
@@ -358,5 +362,18 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
     def apply_referencial(self, value): 
         self._use_referencial.value = value
 
+    @property
+    def show_object_name(self):
+        return self._show_object_name.value
 
-        
+    @show_object_name.setter
+    def show_object_name(self, value):
+        self._show_object_name.value = value
+
+    @property
+    def show_name(self):
+        return self._show_name.value
+
+    @show_name.setter
+    def show_name(self, value):
+        self._show_name.value = value
