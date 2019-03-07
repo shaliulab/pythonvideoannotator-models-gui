@@ -24,7 +24,7 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		IModelGUI.__init__(self)
 		Video.__init__(self, project)
 		BaseWidget.__init__(self, 'Video window', parent_win=project)
-		
+
 		self._file 			= ControlFile('Video')
 		self._addobj 		= ControlButton('Add object')
 		self._addimg 		= ControlButton('Add Image')
@@ -36,12 +36,11 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 
 		self.formset = [
 			'_name',
-			'_file', 			
-			#('_addobj', '_addimg'),
+			'_file',
 			'_removevideo',
 			'_fps_label',
 			('_width_label', '_height_label'),
-			' '			
+			' '
 		]
 
 		self._name.enabled = False
@@ -57,11 +56,14 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		self._removevideo.value  = self.__remove_video_changed_event
 		self._file.changed_event = self.__file_changed_event
 
-		self.create_tree_nodes()
+		self.treenode = self.tree.create_child('Video', icon=conf.ANNOTATOR_ICON_VIDEO)
+		self.treenode.win = self
 
+	def init_form(self):
+		if not self._formLoaded:
+			self.create_tree_nodes()
+		super().init_form()
 
-	
-	
 
 	#####################################################################################
 	########### FUNCTIONS ###############################################################
@@ -79,8 +81,6 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 
 
 	def create_tree_nodes(self):
-		self.treenode = self.tree.create_child('Video', icon=conf.ANNOTATOR_ICON_VIDEO)
-		self.treenode.win = self
 		self.tree.selected_item = self.treenode
 
 		self.tree.add_popup_menu_option(
