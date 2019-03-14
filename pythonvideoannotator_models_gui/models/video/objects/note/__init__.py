@@ -3,6 +3,6 @@ from pythonvideoannotator_models_gui.models.video.objects.note.note_gui import N
 
 Note = type(
 	'Note',
-	tuple(conf.MODULES.find_class('models.video.objects.note.Note') + [NoteGUI]),
+	tuple(conf.VIDEOANNOTATOR_MODULES.find_class('models.video.objects.note.Note') + [NoteGUI]),
 	{}
 )

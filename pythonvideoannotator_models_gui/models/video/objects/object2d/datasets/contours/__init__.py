@@ -4,6 +4,6 @@ from confapp import conf
 
 Contours = type(
 	'Contours',
-	tuple(conf.MODULES.find_class('models.video.objects.object2d.datasets.contours.Contours') + [ContoursGUI]),
+	tuple(conf.VIDEOANNOTATOR_MODULES.find_class('models.video.objects.object2d.datasets.contours.Contours') + [ContoursGUI]),
 	{}
 )

@@ -4,6 +4,6 @@ from confapp import conf
 
 Path = type(
 	'Path',
-	tuple(conf.MODULES.find_class('models.video.objects.object2d.datasets.path.Path') + [PathGUI]),
+	tuple(conf.VIDEOANNOTATOR_MODULES.find_class('models.video.objects.object2d.datasets.path.Path') + [PathGUI]),
 	{}
 )

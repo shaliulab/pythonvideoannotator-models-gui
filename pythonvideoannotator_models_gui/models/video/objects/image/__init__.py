@@ -3,6 +3,6 @@ from pythonvideoannotator_models_gui.models.video.objects.image.image_gui import
 
 Image = type(
 	'Image',
-	tuple(conf.MODULES.find_class('models.video.objects.image.Image') + [ImageGUI]),
+	tuple(conf.VIDEOANNOTATOR_MODULES.find_class('models.video.objects.image.Image') + [ImageGUI]),
 	{}
 )

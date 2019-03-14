@@ -4,6 +4,6 @@ from confapp import conf
 
 Value = type(
 	'Value',
-	tuple(conf.MODULES.find_class('models.video.objects.object2d.datasets.value.Value') + [ValueGUI]),
+	tuple(conf.VIDEOANNOTATOR_MODULES.find_class('models.video.objects.object2d.datasets.value.Value') + [ValueGUI]),
 	{}
 )
