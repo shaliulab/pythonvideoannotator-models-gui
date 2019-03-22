@@ -347,6 +347,10 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
     @property
     def interpolation_mode(self): return None if self._interpolation_mode.value==-1 else self._interpolation_mode.value
 
+    @property
+    def mark_point_button(self):
+        return self._mark_pto_btn
+
 
     @property
     def referencial(self): 
