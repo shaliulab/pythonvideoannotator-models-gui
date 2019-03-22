@@ -60,6 +60,7 @@ class ProjectGUI(IModelGUI, Project, BaseWidget):
 		if isinstance(item.win, Image): item.win.double_clicked_event()
 
 	def tree_item_selection_changed_event(self):
+		self.mainwindow.player.refresh()
 		if self.tree.selected_item is not None and hasattr(self.tree.selected_item,'win'):
 			self.mainwindow.details = self.tree.selected_item.win
 			self.mainwindow.details.show()
