@@ -37,3 +37,6 @@ class IModelGUI(object):
 		if hasattr(self, 'treenode'): self.treenode.setText(0,value)
 
 		for dialog in Dialog.instantiated_dialogs:  dialog.refresh()
+
+	def key_release_event(self, evt):
+		pass

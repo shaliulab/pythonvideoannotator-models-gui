@@ -56,6 +56,11 @@ class ProjectGUI(IModelGUI, Project, BaseWidget):
 	#### GUI EVENTS ######################################################################
 	######################################################################################
 
+	def key_release_event(self, evt):
+		if self._tree.selected_row_index is not None:
+			obj = self._tree.selected_item.win
+			obj.key_release_event(evt)
+
 	def tree_item_double_clicked_event(self, item):
 		if isinstance(item.win, Image): item.win.double_clicked_event()
 
