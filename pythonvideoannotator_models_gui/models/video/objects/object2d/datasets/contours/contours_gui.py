@@ -103,7 +103,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
     def __calc_walked_distance(self):
         v1 = self.object2d.create_value()
         v1.name = "Total walked distance"
-        v1._values, _ = self.calc_walked_distance(winsize)
+        v1._values, _ = self.calc_walked_distance()
 
     def __calc_walked_distance_window(self):
         winsize,ok = QInputDialog.getInt(self,"Calculate the walked distance","Enter the window size", 30)
@@ -115,7 +115,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
     def __calc_walked_distance_with_direction(self):
         v1 = self.object2d.create_value()
         v1.name = "Total walked distance with direction"
-        v1._values, _ = self.calc_walked_distance_with_direction(winsize)
+        v1._values, _ = self.calc_walked_distance_with_direction()
 
     def __calc_walked_distance_window_with_direction(self):
         winsize,ok = QInputDialog.getInt(self,"Calculate the walked distance with direction","Enter the window size", 30)
