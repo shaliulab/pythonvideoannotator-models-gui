@@ -13,7 +13,7 @@ from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.data
 
 if conf.PYFORMS_MODE=='GUI':
     from AnyQt import QtCore
-    from AnyQt.QtWidgets import QMessageBox
+    from AnyQt.QtWidgets import QMessageBox, QColorDialog
     
 
 
@@ -38,6 +38,9 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
         self._interpolate_btn     = ControlButton('Apply',         default=self.__interpolate_btn_event, icon=conf.ANNOTATOR_ICON_INTERPOLATE, visible=False)
         self._remove_btn          = ControlButton('Remove dataset',default=self.__remove_path_dataset, icon=conf.ANNOTATOR_ICON_REMOVE)
 
+        self._pickcolor   = ControlButton('Pick a color', default=self.__pick_a_color_event)
+        self._color = None
+
         self._show_object_name = ControlCheckBox('Show object name', default=False)
         self._show_name = ControlCheckBox('Show name', default=False)
 
@@ -46,6 +49,8 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
             ('_show_name', '_show_object_name'),
             ('_referencial_pt', '_use_referencial'),
             '_remove_btn',            
+            ' ',
+            '_pickcolor',
             ' ',
             ('_mark_pto_btn', '_sel_pto_btn'),
             '_del_path_btn',
@@ -226,6 +231,12 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
         except:
             self._referencial = None
 
+    def __pick_a_color_event(self):
+        if self.color is None:
+            self.color = QColorDialog.getColor(parent = self, title = 'Pick a color for the path')
+        
+        else:
+            self.color = QColorDialog.getColor(self.color, self, 'Pick a color for the path')
 
     ####################################################################
 
@@ -328,7 +339,10 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
             else:
                 self._del_point_btn.show()
 
-        Path.draw(self, frame, frame_index)
+        if self.color is None:
+            Path.draw(self, frame, frame_index, None)
+        else:
+            Path.draw(self, frame, frame_index, (self.color.red(), self.color.green(), self.color.blue()))
 
     ######################################################################
     ### PROPERTIES #######################################################
@@ -351,6 +365,13 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
     def mark_point_button(self):
         return self._mark_pto_btn
 
+    @property
+    def color(self): 
+        return self._color
+
+    @color.setter
+    def color(self, value):
+        self._color = value
 
     @property
     def referencial(self): 
