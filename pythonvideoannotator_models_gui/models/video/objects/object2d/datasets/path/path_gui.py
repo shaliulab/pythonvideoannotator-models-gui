@@ -1,4 +1,6 @@
 import math, cv2, numpy as np, AnyQt
+
+
 from confapp import conf
 from pyforms.basewidget import BaseWidget
 from pyforms.controls import ControlButton
@@ -14,6 +16,7 @@ from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.data
 if conf.PYFORMS_MODE=='GUI':
     from AnyQt import QtCore
     from AnyQt.QtWidgets import QMessageBox, QColorDialog
+    from AnyQt.QtGui import QColor
     
 
 
@@ -39,7 +42,6 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
         self._remove_btn          = ControlButton('Remove dataset',default=self.__remove_path_dataset, icon=conf.ANNOTATOR_ICON_REMOVE)
 
         self._pickcolor   = ControlButton('Pick a color', default=self.__pick_a_color_event)
-        self._color = None
 
         self._show_object_name = ControlCheckBox('Show object name', default=False)
         self._show_name = ControlCheckBox('Show name', default=False)
@@ -232,11 +234,10 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
             self._referencial = None
 
     def __pick_a_color_event(self):
-        if self.color is None:
-            self.color = QColorDialog.getColor(parent = self, title = 'Pick a color for the path')
-        
-        else:
-            self.color = QColorDialog.getColor(self.color, self, 'Pick a color for the path')
+        color = QColor(self.color[2], self.color[1], self.color[0])
+        color = QColorDialog.getColor(color, parent = self, title = 'Pick a color for the path')
+        self.color = color.blue(), color.green(), color.red()
+        self.mainwindow._player.refresh()
 
     ####################################################################
 
@@ -339,10 +340,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
             else:
                 self._del_point_btn.show()
 
-        if self.color is None:
-            Path.draw(self, frame, frame_index, None)
-        else:
-            Path.draw(self, frame, frame_index, (self.color.blue(), self.color.green(), self.color.red()))
+        Path.draw(self, frame, frame_index)
 
     ######################################################################
     ### PROPERTIES #######################################################
@@ -364,14 +362,6 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
     @property
     def mark_point_button(self):
         return self._mark_pto_btn
-
-    @property
-    def color(self): 
-        return self._color
-
-    @color.setter
-    def color(self, value):
-        self._color = value
 
     @property
     def referencial(self): 
