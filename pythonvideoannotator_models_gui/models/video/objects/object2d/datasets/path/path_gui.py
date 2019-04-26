@@ -342,7 +342,7 @@ class PathGUI(DatasetGUI, Path, BaseWidget):
         if self.color is None:
             Path.draw(self, frame, frame_index, None)
         else:
-            Path.draw(self, frame, frame_index, (self.color.red(), self.color.green(), self.color.blue()))
+            Path.draw(self, frame, frame_index, (self.color.blue(), self.color.green(), self.color.red()))
 
     ######################################################################
     ### PROPERTIES #######################################################
