@@ -16,7 +16,8 @@ from pythonvideoannotator_models.utils.tools import points_angle, min_dist_angle
 from pythonvideoannotator_models_gui.models.video.objects.object2d.datasets.dataset_gui import DatasetGUI
 
 if conf.PYFORMS_MODE=='GUI':
-    from AnyQt.QtWidgets import QInputDialog
+    from AnyQt.QtWidgets import QInputDialog, QColorDialog
+    from AnyQt.QtGui import QColor
 
 class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
@@ -31,12 +32,16 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
         self._layers            = ControlCheckBoxList('Layers')
         self._sel_pto_btn       = ControlButton('Select point')     
         self._switchangle_btn   = ControlButton('Switch orientation')
+        self._pickcolor   = ControlButton('Pick a color', default=self.__pick_a_color_event)
 
         self._formset = [ 
             '_name',
             '_remove_btn',
             '_sel_pto_btn',
-            '_switchangle_btn',
+            '_switchangle_btn',          
+            ' ',
+            '_pickcolor',
+            ' ',
             '_layers'
         ]
 
@@ -124,6 +129,12 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
             v2.name = "Walked distance with direction in the previous {0} frames".format(winsize)
             _, v2._values = self.calc_walked_distance_with_direction(winsize)
 
+    
+    def __pick_a_color_event(self):
+        color = QColor(self.color[2], self.color[1], self.color[0])
+        color = QColorDialog.getColor(color, parent = self, title = 'Pick a color for the path')
+        self.color = color.blue(), color.green(), color.red()
+        self.mainwindow._player.refresh()
 
     ######################################################################
     ### FUNCTIONS ########################################################
@@ -741,7 +752,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
 
     def draw_contour(self, frame, frame_index):
         cnt = self.get_contour(frame_index)
-        if cnt is not None: cv2.polylines(frame, np.array( [cnt] ), True, (0,255,0), 2)
+        if cnt is not None: cv2.polylines(frame, np.array( [cnt] ), True, self.color, 2)
 
     def draw_angle(self, frame, frame_index):
         angle = self.get_angle(frame_index)
@@ -755,7 +766,7 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
         rect = self.get_bounding_box(frame_index)
         if rect is None: return None
         x,y,w,h = rect
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
+        cv2.rectangle(frame,(x,y),(x+w,y+h), self.color,2)
 
     def draw_fitellipse(self, frame, frame_index):
         ellipse = self.get_fit_ellipse(frame_index)
@@ -772,21 +783,21 @@ class ContoursGUI(DatasetGUI, Contours, BaseWidget):
         cnt = self.get_contour(frame_index)
         if cnt is None: return None
         hull = cv2.convexHull(cnt)
-        cv2.polylines(frame, np.array( [hull] ), True, (0,0,255), 1)
+        cv2.polylines(frame, np.array( [hull] ), True, self.color, 1)
 
     def draw_rotatedrectangle(self, frame, frame_index):
         
         rect = self.get_rotatedrectangle(frame_index)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        cv2.drawContours(frame,[box],0,(0,191,255),1)
+        cv2.drawContours(frame,[box],0, self.color,1)
 
     def draw_minimumenclosingcircle(self, frame, frame_index):
         circle = self.get_minimumenclosingcircle(frame_index)
         if circle is not None:
             center, radius = circle
             center = int(round(center[0])), int(round(center[1]))
-            cv2.circle(frame, center, int(round(radius)), (255,0,0))
+            cv2.circle(frame, center, int(round(radius)), self.color)
 
 
     def draw_minenclosingtriangle(self, frame, frame_index):
