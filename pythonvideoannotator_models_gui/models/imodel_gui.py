@@ -40,3 +40,15 @@ class IModelGUI(object):
 
 	def key_release_event(self, evt):
 		pass
+
+	def on_click(self, event, x, y):
+		pass
+
+	def on_double_click(self, event, x, y):
+		pass
+
+	def on_drag(self, p1, p2):
+		pass
+
+	def on_end_drag(self, p1, p2):
+		pass

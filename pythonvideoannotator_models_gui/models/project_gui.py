@@ -87,11 +87,26 @@ class ProjectGUI(IModelGUI, Project, BaseWidget):
 		super(ProjectGUI, self).__sub__(obj)
 		if isinstance(obj, Video): self._tree -= obj.treenode
 		return self
+
+	def player_on_drag(self, p1, p2):
+		if self._tree.selected_row_index is not None:
+			obj = self._tree.selected_item.win
+			obj.on_drag(p1, p2)
+
+	def player_on_end_drag(self, p1, p2):
+		if self._tree.selected_row_index is not None:
+			obj = self._tree.selected_item.win
+			obj.on_end_drag(p1, p2)
 		
 	def player_on_click(self, event, x, y):
 		if self._tree.selected_row_index is not None:
 			obj = self._tree.selected_item.win
 			obj.on_click(event, x, y)
+
+	def player_on_double_click(self, event, x, y):
+		if self._tree.selected_row_index is not None:
+			obj = self._tree.selected_item.win
+			obj.on_double_click(event, x, y)
 
 	def draw(self, frame, frame_index):
 		if self._tree.selected_row_index is not None:

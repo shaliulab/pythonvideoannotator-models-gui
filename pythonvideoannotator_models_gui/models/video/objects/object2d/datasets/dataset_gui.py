@@ -134,6 +134,18 @@ class DatasetGUI(IModelGUI):
 		self.object2d -= self
 
 
-	def draw(self, frame, frame_index):pass
+	def draw(self, frame, frame_index):
+		pass
 
-	def on_click(self, event, x, y):pass
+
+	def on_drag(self, p1, p2):
+		pass
+
+	def on_end_drag(self, p1, p2):
+		pass
+
+	def on_click(self, event, x, y):
+		pass
+
+	def on_double_click(self, event, x, y):
+		pass

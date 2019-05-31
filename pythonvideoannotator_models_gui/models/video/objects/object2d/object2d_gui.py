@@ -132,6 +132,9 @@ class Object2dGUI(IModelGUI, Object2D, BaseWidget):
 						v.set_value(i, graph[i])
 
 
+	def on_double_click(self, event, x, y):
+		for dataset in self.datasets: dataset.on_double_click(event, x, y)
+
 	def on_click(self, event, x, y):
 		for dataset in self.datasets: dataset.on_click(event, x, y)
 
