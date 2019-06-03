@@ -178,7 +178,4 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		self._width_label.value = "Width: {0}".format(width)
 		self._height_label.value = "Height: {0}".format(height)
 		
-			
-	def on_click(self, event, x, y):
-		for obj in self.objects: obj.on_click(event, x, y)
-
+	
