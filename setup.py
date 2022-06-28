@@ -12,7 +12,7 @@ with open(os.path.join(PACKAGE_PATH, 'pythonvideoannotator_models_gui','__init__
 
 
 setup(
-	name='Python video annotator - models - gui',
+	name='Python video annotator - models - gui-shaliulab',
 	version=version,
 	description="""""",
 	author=['Ricardo Ribeiro'],
