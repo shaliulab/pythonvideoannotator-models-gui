@@ -26,6 +26,7 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 		BaseWidget.__init__(self, 'Video window', parent_win=project)
 
 		self._file 			= ControlFile('Video')
+		self._chunk			= ControlText('Chunk')
 		self._addobj 		= ControlButton('Add object')
 		self._addimg 		= ControlButton('Add Image')
 		self._removevideo  	= ControlButton('Remove')
@@ -168,7 +169,12 @@ class VideoGUI(IModelGUI, Video, BaseWidget):
 	def filepath(self, value):
 		Video.filepath.fset(self, value)		
 		self.mainwindow.video 	= self.video_capture
-		self._file.value 		= value
+		if type(value) is tuple:
+				self._file.value = value[0]
+				if value[0].endswith("yaml"):
+					self._chunk.value       = str(value[1])
+		else:
+			self._file.value = value
 
 		fps 	= self.video_capture.get(cv2.CAP_PROP_FPS)
 		width 	= self.video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)
